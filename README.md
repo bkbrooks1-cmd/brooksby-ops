@@ -8,10 +8,11 @@ The skills carry the logic. Your data lives in one config file. To run this for 
 
 | Component | What it does |
 |---|---|
+| `skills/onboarding` | First-time setup. Provisions the six Notion databases, captures their IDs into config, connects the tools, and verifies with a check-in. |
 | `skills/daily-checkin` | Today's meetings with prep status, email triaged into proposed tasks, deliverable check-off. |
 | `skills/monday-planner` | Builds the week plan page in Notion, creates prep tasks, drafts the Monday team email. |
 
-Onboarding, plus the capture / content / lead skills, land in later versions.
+The capture / content / lead skills land in later versions.
 
 ## Layout
 
@@ -43,4 +44,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.1.0 — Phase 1 scaffold. Two skills packaged and config-driven. Not yet beta-ready: onboarding skill and the Notion schema template are the next milestones.
+Version 0.2.0 — Phase 1. Onboarding skill written and its API provisioning verified against the live Notion connector (databases + two-way relations create cleanly). Three skills packaged and config-driven. Next: dry-run onboarding against a fresh empty Notion, then a polished home-page/views template.
