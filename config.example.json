@@ -1,0 +1,35 @@
+{
+  "_comment": "Sanitized template for the Solopreneur OS. A new user copies this to solo-os-config.json and fills in their own values during onboarding. No real IDs, emails, or paths in this file — it is the one that ships in the repo.",
+  "_version": "1.0",
+
+  "user": {
+    "name": "YOUR NAME",
+    "company": "YOUR COMPANY"
+  },
+
+  "voice": {
+    "name": "YOUR FIRST NAME",
+    "style_guide_path": "About Me/anti-ai-writing.md"
+  },
+
+  "notion": {
+    "home_page": "<notion home page id>",
+    "tasks_db": "<tasks data source id>",
+    "meetings_db": "<meetings data source id>",
+    "engagements_db": "<engagements data source id>",
+    "leads_db": "<leads data source id>",
+    "content_db": "<content calendar data source id>",
+    "agent_ideas_db": "<agent ideas data source id>"
+  },
+
+  "email": {
+    "monitored_addresses": ["you@example.com"],
+    "send_as": "you@example.com"
+  },
+
+  "firewall": {
+    "no_connector_accounts": []
+  },
+
+  "engagements": []
+}

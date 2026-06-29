@@ -1,0 +1,13 @@
+# Real per-user config — never commit. Only config.example.json ships.
+solo-os-config.json
+config.json
+
+# Voice source / personal context — instance-specific, stays out of the repo.
+About Me/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
