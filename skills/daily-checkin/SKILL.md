@@ -14,7 +14,7 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the check-in."
 
-Required keys: `notion.tasks_db`, `notion.leads_db`, `notion.agent_ideas_db`, `email.monitored_addresses`, `firewall.no_connector_accounts`.
+Required keys: `notion.tasks_db`, `notion.leads_db`, `notion.agent_ideas_db`, `notion.meetings_db`, `notion.engagements_db`, `email.monitored_addresses`, `firewall.no_connector_accounts`.
 
 ## Sources to read
 
@@ -23,6 +23,7 @@ Flag any source that fails; never silently omit it.
 1. **Google Calendar** (connector): today and tomorrow, all calendars.
 2. **Gmail** (connector): since the last check-in (default: last 24 hours). Unread or flagged threads and direct asks, including mail to any address in `email.monitored_addresses` (all forward here).
 3. **Notion Tasks**: data source `collection://{notion.tasks_db}`. Due today, overdue, and In progress.
+4. **Granola** (connector, optional — skip cleanly if not connected): meetings since the last check-in (default last 24 hours). These feed the capture block in the output.
 
 ## Output: the today view, in chat
 
@@ -32,6 +33,7 @@ Keep it tight. Four blocks, skip any that are empty:
 2. **Due and overdue** — tasks due today, then overdue, each with engagement. Overdue items get a suggested move: do today, reschedule (propose a date), or flag for Friday wrap.
 3. **From email** — new items that look like work. For each, propose a task (name, due date, engagement). Create rows only after the user confirms. Mark Source = Email.
 4. **Deliverables** — anything produced in the current session that maps to an open task; offer to mark it Done.
+5. **Meetings to capture** — new Granola meetings not yet in the Meetings DB (`collection://{notion.meetings_db}`). Run the capture routine (canonical steps live in the capture skill): for each, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Skip this block silently if Granola is not connected or nothing is new.
 
 ## Update rules
 

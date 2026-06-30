@@ -14,7 +14,7 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the planner."
 
-Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
+Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `notion.engagements_db`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
 
 ## Voice
 
@@ -41,7 +41,7 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 3. **Top priorities** — three to five, drawn from due tasks, overdue items, and meeting prep. Outcome phrasing, not activity phrasing.
 4. **Tasks due this week** — linked task list by day.
 5. **Pipeline** — leads needing action this week, each with its next action. Flag leads missing a next action.
-6. **Uncaptured meetings** — only if Granola is connected: meetings from last week with no Notion Meetings page, flagged so the user can add them. (Omit this section entirely when Granola is not connected.)
+6. **Meeting capture** — only if Granola is connected: run the capture routine (canonical steps live in the capture skill) for last week's meetings. For each meeting not already in the Meetings DB, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Fold the resulting action items into "Tasks due this week" and "Carryover" above. Omit this section entirely when Granola is not connected.
 7. **Carryover** — overdue open tasks rolled in from prior weeks.
 
 ## Output 2: prep tasks

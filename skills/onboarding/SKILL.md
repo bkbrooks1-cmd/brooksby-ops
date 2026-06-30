@@ -18,6 +18,8 @@ Confirm the prerequisites in plain language. The user needs:
 3. One Notion page they will let the OS use as its home — new or existing — shared with the Notion integration so it can create databases under it (in Notion: open the page → ••• menu → Connections → add the integration).
 4. A Cowork project folder for the OS, where `solo-os-config.json` will be written.
 
+**Granola** is optional but needed for meeting capture (used by the check-in and the planner to pull recent meetings into Notion minutes and action items). Connect it too if the user wants that; the OS works without it, just without automatic meeting capture.
+
 If a connector is missing, stop and tell the user exactly which one to enable in Settings, then resume. Do not proceed past a missing Notion connector — every step below depends on it.
 
 ## Step 1 — Identify the workspace and home page
@@ -99,6 +101,7 @@ Gather the remaining values conversationally and assemble the full config:
 - `voice.name` (their first name), `voice.style_guide_path` (path to their own writing-style file if they have one; otherwise leave it an empty string for a neutral plain-professional voice)
 - `email.monitored_addresses` (every address that lands in their connected Gmail), `email.send_as`
 - `firewall.no_connector_accounts` (any client whose systems must never be connected; empty list if none)
+- `capture.lookback` (how far back the capture routine pulls meetings: `this_week`, `last_week`, or `last_30_days`; default `last_week`)
 - `engagements` (empty list at setup; engagement-specific skills fill this later)
 
 ## Step 4 — Write the config file

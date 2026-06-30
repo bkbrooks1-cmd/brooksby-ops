@@ -9,10 +9,11 @@ The skills carry the logic. Your data lives in one config file. To run this for 
 | Component | What it does |
 |---|---|
 | `skills/onboarding` | First-time setup. Provisions the six Notion databases, captures their IDs into config, connects the tools, and verifies with a check-in. |
-| `skills/daily-checkin` | Today's meetings with prep status, email triaged into proposed tasks, deliverable check-off. |
-| `skills/monday-planner` | Builds the week plan page in Notion, creates prep tasks, drafts the Monday weekly email (generic by default; per-engagement templates via config). |
+| `skills/daily-checkin` | Today's meetings with prep status, email triaged into proposed tasks, deliverable check-off, plus recent meetings to capture. |
+| `skills/monday-planner` | Builds the week plan page in Notion, creates prep tasks, captures last week's meetings, drafts the Monday weekly email (generic by default; per-engagement templates via config). |
+| `skills/capture` | Turns recent Granola meetings into Notion meeting pages with minutes, action items, and status. Runs standalone ("capture") and as a step inside the check-in and planner. Requires Granola. |
 
-The capture / content / lead skills land in later versions.
+The content / lead skills land in later versions.
 
 ## Layout
 
@@ -25,6 +26,7 @@ brooksby-ops/
       SKILL.md                               # first-time setup
       references/notion-schema.md            # the six-database schema spec
     daily-checkin/SKILL.md
+    capture/SKILL.md                         # Granola meetings -> Notion minutes + tasks
     monday-planner/
       SKILL.md
       references/weekly-email.md             # generic vs per-engagement email setup
@@ -55,4 +57,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.4.1 — Phase 1 complete; core skills are instance-clean. Onboarding fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders; descriptions are person-neutral. The Monday planner's weekly email is now a generic out-of-the-box template, with per-engagement custom templates driven by config (the OFP format becomes one such engagement template, not shipped code). Remaining before beta: one unattended full-flow test with a real tester.
+Version 0.5.0 — Phase 1 plus meeting capture. Onboarding fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All skills locate config by filename across connected folders; descriptions are person-neutral. The Monday planner's weekly email is a generic out-of-the-box template with per-engagement custom templates driven by config. New: a `capture` skill turns Granola meetings into Notion minutes, action items, and status — run standalone, or as a step inside the check-in and planner (dedupes against the Meetings DB, so it is safe to run from any entry point). Remaining before beta: capture dry-run against a real meeting, then one unattended full-flow test with a real tester.

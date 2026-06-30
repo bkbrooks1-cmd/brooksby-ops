@@ -31,6 +31,10 @@
     "no_connector_accounts": []
   },
 
+  "capture": {
+    "lookback": "last_week"
+  },
+
   "_engagements_example": {
     "_note": "Optional. Add an entry per engagement. Include a weekly_email block to have the Monday planner draft that engagement's weekly email — see skills/monday-planner/references/weekly-email.md. Keep the real 'engagements' list below; this _example key is ignored.",
     "name": "Example Client ERP Migration",
