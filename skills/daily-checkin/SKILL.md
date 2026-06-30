@@ -1,6 +1,6 @@
 ---
 name: daily-checkin
-description: Brian's daily check-in - today's meetings with prep status, email triage into tasks, deliverable check-off, and plan updates. Use whenever Brian says "check in", "what's on my plate", "what does today look like", "morning rundown", "catch me up", or asks for a status of his day or tasks at any point. If Brian asks what he should be doing right now, use this skill.
+description: Daily check-in for the user — today's meetings with prep status, email triage into tasks, deliverable check-off, and plan updates. Use whenever the user says "check in", "what's on my plate", "what does today look like", "morning rundown", "catch me up", or asks for a status of their day or tasks at any point. If the user asks what they should be doing right now, use this skill.
 ---
 
 # Daily check-in

@@ -1,6 +1,6 @@
 ---
 name: monday-planner
-description: Generate Brian's weekly plan in Notion and draft the Monday team email. Use whenever Brian says "plan my week", "run the Monday planner", "build my week plan", "what does my week look like", or when the scheduled Monday-morning planning task fires. Also use mid-week when Brian asks to re-plan after new meetings or priorities land. If Brian asks anything about organizing his upcoming week, reach for this skill rather than improvising.
+description: Generate the user's weekly plan in Notion and draft the Monday team email. Use whenever the user says "plan my week", "run the Monday planner", "build my week plan", "what does my week look like", or when the scheduled Monday-morning planning task fires. Also use mid-week when the user asks to re-plan after new meetings or priorities land. If the user asks anything about organizing their upcoming week, reach for this skill rather than improvising.
 ---
 
 # Monday planner
