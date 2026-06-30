@@ -40,6 +40,7 @@
     "name": "Example Client ERP Migration",
     "qb_customer": "Example Client",
     "rate": 125,
+    "project_root": "Projects/Example Client/",
     "weekly_email": {
       "template_path": "Projects/Example Client/templates/weekly_email.html",
       "to": "erp-team@exampleclient.com",

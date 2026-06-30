@@ -64,6 +64,10 @@ For each uncaptured meeting, prepare a page for the Meetings data source with:
 
 Write minutes in the user's voice per `voice.style_guide_path` if set; otherwise neutral plain-professional. No buzzwords, no em dashes.
 
+### 5b. Word copy for client-facing meetings
+
+If the meeting is client-facing (it has external attendees) and its engagement has a `project_root` in config, also produce a Word (.docx) copy of the same minutes and save it to that engagement's folder — for example `<project_root>/deliverables/Minutes_<YYYY-MM-DD>_<Client>.docx`. Use the docx skill for clean formatting. The Word file is the shareable artifact; the Notion page stays the system of record. Internal-only meetings, or meetings whose engagement has no `project_root`, get the Notion page only. Include the Word file in the disposition list and create it on the same confirmation.
+
 ### 6. Extract action items into Tasks (proposed, not yet created)
 
 For each action item, prepare a row for the Tasks data source `collection://{notion.tasks_db}`:
