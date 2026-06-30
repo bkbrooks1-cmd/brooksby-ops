@@ -15,7 +15,8 @@ Confirm the prerequisites in plain language. The user needs:
 
 1. The **Notion** connector enabled in Cowork.
 2. The **Gmail** and **Google Calendar** connectors enabled (the daily skills read both).
-3. One Notion page they will let the OS use as its home — new or existing.
+3. One Notion page they will let the OS use as its home — new or existing — shared with the Notion integration so it can create databases under it (in Notion: open the page → ••• menu → Connections → add the integration).
+4. A Cowork project folder for the OS, where `solo-os-config.json` will be written.
 
 If a connector is missing, stop and tell the user exactly which one to enable in Settings, then resume. Do not proceed past a missing Notion connector — every step below depends on it.
 
@@ -25,9 +26,15 @@ Call Notion `fetch` with id `"self"` to confirm the connected workspace and the 
 
 Ask the user for the **home page**: the parent under which the six databases will be created. Accept a Notion URL or let them name a page to search for. Resolve it to a page ID. This ID becomes `notion.home_page` in config. If they have no page yet, create one titled with their company or "Solopreneur OS" and use that.
 
+Then confirm the **project folder**: ask the user which Cowork project folder the OS should live in. That folder is where `solo-os-config.json` will be written in Step 4. Do not assume a folder — confirm it explicitly, and create it if it does not exist.
+
+## Step 1.5 — Verify Notion access before building
+
+Before creating anything real, confirm the integration can write under the home page. Create one throwaway database under it (a single-column "Access check") and confirm it returns an ID, then trash it. If creation is denied, stop and tell the user in plain language: open the home page in Notion, click the ••• menu, choose Connections, add the integration, then resume. This catches the most common setup failure — the integration not being granted page access — before any real work begins.
+
 ## Step 2 — Provision the six databases
 
-Read `${CLAUDE_PLUGIN_ROOT}/skills/onboarding/references/notion-schema.md` for the full property spec and the rationale behind each field. The exact creation procedure is below.
+The exact creation procedure is below and is self-contained — you do not need any external file to run it. (When installed as a plugin, `${CLAUDE_PLUGIN_ROOT}/skills/onboarding/references/notion-schema.md` carries extra rationale and genericization notes, but reading it is optional.)
 
 The databases cross-link with two-way relations, and a relation can only point at a database that already exists. So **create them in this order**, capturing each returned data-source ID before moving on. Each two-way relation is declared inline with `RELATION('<target-ds-id>', DUAL '<mirror name>')`, which auto-creates the correctly named mirror property on the target — do not create mirrors by hand.
 
@@ -96,7 +103,7 @@ Gather the remaining values conversationally and assemble the full config:
 
 ## Step 4 — Write the config file
 
-Write `solo-os-config.json` to the Solopreneur OS project root with `_version` `"1.0"`, the captured Notion IDs, the home page ID, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
+Write `solo-os-config.json` to the project folder confirmed in Step 1 with `_version` `"1.0"`, the captured Notion IDs, the home page ID, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
 
 Never write real IDs or emails into `config.example.json` — that file stays sanitized.
 

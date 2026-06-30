@@ -1,5 +1,5 @@
 {
-  "_comment": "Sanitized template for the Solopreneur OS. A new user copies this to solo-os-config.json and fills in their own values during onboarding. No real IDs, emails, or paths in this file — it is the one that ships in the repo.",
+  "_comment": "Sanitized template showing the shape of solo-os-config.json. Onboarding writes the real file for you — you do not normally edit this by hand. No real IDs, emails, or paths here; this is the version that ships in the repo.",
   "_version": "1.0",
 
   "user": {
@@ -9,7 +9,7 @@
 
   "voice": {
     "name": "YOUR FIRST NAME",
-    "style_guide_path": "About Me/anti-ai-writing.md"
+    "style_guide_path": ""
   },
 
   "notion": {

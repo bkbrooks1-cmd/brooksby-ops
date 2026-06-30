@@ -19,22 +19,29 @@ The capture / content / lead skills land in later versions.
 ```
 brooksby-ops/
   .claude-plugin/
-    plugin.json          # plugin manifest
+    plugin.json                              # plugin manifest
   skills/
+    onboarding/
+      SKILL.md                               # first-time setup
+      references/notion-schema.md            # the six-database schema spec
     daily-checkin/SKILL.md
     monday-planner/SKILL.md
-  config.example.json    # sanitized template — copy and fill in
-  .gitignore             # keeps the real config and About Me/ out of the repo
+  config.example.json                        # sanitized template (onboarding writes the real one)
+  .gitignore                                 # keeps the real config and About Me/ out of the repo
   README.md
 ```
 
 ## Install
 
-1. Add this plugin to Cowork (Settings > Capabilities), or install the packaged `.plugin` file.
-2. Copy `config.example.json` to `solo-os-config.json` in your Solopreneur OS project folder.
-3. Fill in your own values — Notion database IDs, monitored email addresses, voice source path. (Onboarding will automate this step in a future version.)
-4. Connect Gmail, Google Calendar, and Notion in Cowork.
-5. Run a daily check-in to confirm everything returns data.
+Onboarding does the setup for you — you do not hand-fill database IDs.
+
+1. Add this plugin to Cowork (Settings > Capabilities).
+2. Connect Notion, Gmail, and Google Calendar in Cowork.
+3. In Notion, share the page you'll use as the OS home with the Notion integration, so the plugin can create databases under it.
+4. Pick the Cowork project folder where the OS will live — this is where your `solo-os-config.json` gets written.
+5. Say **"set up the OS"** to run onboarding. It creates the six Notion databases, builds your home dashboard, writes the config, and verifies the install with a check-in.
+
+After that, say "check in" for the daily view or "plan my week" for the Monday planner.
 
 ## How config works
 
@@ -44,4 +51,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.3.0 — Phase 1. Onboarding skill written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Three skills packaged and config-driven. Remaining before beta: genericize the shipped template's instance labels and run an unattended full-flow test with a real tester.
+Version 0.3.1 — Phase 1. Onboarding skill written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install narrative rewritten around onboarding, plus a Notion access pre-check and user-confirmed config folder. Three skills packaged and config-driven. Remaining before beta: align the daily skills' config-path lookup with the user-chosen folder, then run an unattended full-flow test with a real tester.
