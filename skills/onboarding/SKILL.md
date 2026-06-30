@@ -96,7 +96,7 @@ These are linked views — they point at the real databases, so edits in either 
 Gather the remaining values conversationally and assemble the full config:
 
 - `user.name`, `user.company`
-- `voice.name` (their first name), `voice.style_guide_path` (default `About Me/anti-ai-writing.md` if they have one; otherwise leave neutral)
+- `voice.name` (their first name), `voice.style_guide_path` (path to their own writing-style file if they have one; otherwise leave it an empty string for a neutral plain-professional voice)
 - `email.monitored_addresses` (every address that lands in their connected Gmail), `email.send_as`
 - `firewall.no_connector_accounts` (any client whose systems must never be connected; empty list if none)
 - `engagements` (empty list at setup; engagement-specific skills fill this later)

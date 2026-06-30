@@ -10,7 +10,7 @@ The skills carry the logic. Your data lives in one config file. To run this for 
 |---|---|
 | `skills/onboarding` | First-time setup. Provisions the six Notion databases, captures their IDs into config, connects the tools, and verifies with a check-in. |
 | `skills/daily-checkin` | Today's meetings with prep status, email triaged into proposed tasks, deliverable check-off. |
-| `skills/monday-planner` | Builds the week plan page in Notion, creates prep tasks, drafts the Monday team email. |
+| `skills/monday-planner` | Builds the week plan page in Notion, creates prep tasks, drafts the Monday weekly email (generic by default; per-engagement templates via config). |
 
 The capture / content / lead skills land in later versions.
 
@@ -55,4 +55,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.4.0 — Phase 1 complete; core skills are instance-clean. Onboarding fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders; descriptions are person-neutral. The Monday planner's weekly email is now a generic out-of-the-box template, with per-engagement custom templates driven by config (the OFP format becomes one such engagement template, not shipped code). Remaining before beta: one unattended full-flow test with a real tester.
+Version 0.4.1 — Phase 1 complete; core skills are instance-clean. Onboarding fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders; descriptions are person-neutral. The Monday planner's weekly email is now a generic out-of-the-box template, with per-engagement custom templates driven by config (the OFP format becomes one such engagement template, not shipped code). Remaining before beta: one unattended full-flow test with a real tester.

@@ -1,11 +1,11 @@
 ---
 name: monday-planner
-description: Generate the user's weekly plan in Notion and draft the Monday team email. Use whenever the user says "plan my week", "run the Monday planner", "build my week plan", "what does my week look like", or when the scheduled Monday-morning planning task fires. Also use mid-week when the user asks to re-plan after new meetings or priorities land. If the user asks anything about organizing their upcoming week, reach for this skill rather than improvising.
+description: Generate the user's weekly plan in Notion and draft the Monday weekly email. Use whenever the user says "plan my week", "run the Monday planner", "build my week plan", "what does my week look like", or when the scheduled Monday-morning planning task fires. Also use mid-week when the user asks to re-plan after new meetings or priorities land. If the user asks anything about organizing their upcoming week, reach for this skill rather than improvising.
 ---
 
 # Monday planner
 
-Build the week plan from every connected source, write it to Notion, and draft the team email for review. The user runs solo; this plan is how the week starts. A partial plan delivered on time beats a perfect plan that never generates.
+Build the week plan from every connected source, write it to Notion, and draft the weekly email for review. The user runs solo; this plan is how the week starts. A partial plan delivered on time beats a perfect plan that never generates.
 
 ## Config
 
@@ -22,13 +22,13 @@ Everything written here is in the user's voice: plain, direct, metrics-first. If
 
 ## Sources to read
 
-Read all five. If a source cannot be read (expired token, connector down), do not stop and do not silently omit it: name it in a "Sources missed" line at the top of the plan and keep going.
+Read every connected source below (Granola is optional). If a source cannot be read (expired token, connector down), do not stop and do not silently omit it: name it in a "Sources missed" line at the top of the plan and keep going.
 
 1. **Google Calendar** (connector): all events from today through Sunday, all calendars. This is the single calendar hub; it includes Calendly bookings and invites forwarded from the addresses in `email.monitored_addresses`.
 2. **Gmail** (connector): last 7 days. Look for unresolved items: unread or flagged threads, direct questions, anything addressed to any address in `email.monitored_addresses` (all forward into this inbox). An item is unresolved if it plainly asks for something and no reply exists.
 3. **Notion Tasks**: data source `collection://{notion.tasks_db}`. Open tasks = Status is not Done. Note anything overdue.
 4. **Notion Leads**: data source `collection://{notion.leads_db}`. Rows with Next action date on or before this Friday, plus any row with an empty Next action (that emptiness is itself a flag; the pipeline rule is Next action always filled).
-5. **Granola** (connector): meetings from the past 7 days. Cross-check against the Notion Meetings DB (`collection://{notion.meetings_db}`); any Granola meeting without a Meetings page is an uncaptured meeting worth flagging.
+5. **Granola** (connector, optional — skip cleanly if not connected): meetings from the past 7 days. Cross-check against the Notion Meetings DB (`collection://{notion.meetings_db}`); any Granola meeting without a Meetings page is an uncaptured meeting worth flagging.
 
 If a project folder is mounted in the session, also scan active planning documents for commitments with dates.
 
@@ -41,7 +41,7 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 3. **Top priorities** — three to five, drawn from due tasks, overdue items, and meeting prep. Outcome phrasing, not activity phrasing.
 4. **Tasks due this week** — linked task list by day.
 5. **Pipeline** — leads needing action this week, each with its next action. Flag leads missing a next action.
-6. **Uncaptured meetings** — Granola meetings from last week with no Notion Meetings page, with a reminder to say "capture".
+6. **Uncaptured meetings** — only if Granola is connected: meetings from last week with no Notion Meetings page, flagged so the user can add them. (Omit this section entirely when Granola is not connected.)
 7. **Carryover** — overdue open tasks rolled in from prior weeks.
 
 ## Output 2: prep tasks
