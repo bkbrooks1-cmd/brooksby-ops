@@ -1,0 +1,48 @@
+<!--
+  Generic weekly check-in email template for the Solopreneur OS planner.
+  Works out of the box. To tailor it to an engagement: copy this file, customize
+  the styling and sections, and point the engagement's weekly_email.template_path
+  at your copy (see skills/monday-planner/references/weekly-email.md).
+
+  Tokens the planner fills: {{TO}} {{CC}} {{SUBJECT}} {{GREETING}} {{FRAMING}}
+  {{WHERE_WE_STAND}} {{THIS_WEEK}} {{WHAT_I_NEED}} {{ON_MY_SIDE}} {{SIGNOFF}} {{SENDER}}
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: Calibri, Aptos, Arial, sans-serif; font-size: 11pt; color: #1a1a1a; line-height: 1.45; max-width: 720px; margin: 0 auto; }
+  .meta { color: #555; font-size: 10pt; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 16px; }
+  .meta div { margin: 2px 0; }
+  h2 { font-size: 12pt; margin: 20px 0 6px; padding-bottom: 3px; border-bottom: 2px solid #2f5d8c; color: #2f5d8c; }
+  ul { margin: 6px 0 6px 18px; padding: 0; }
+  li { margin: 3px 0; }
+  .signoff { margin-top: 22px; }
+</style>
+</head>
+<body>
+  <div class="meta">
+    <div><strong>To:</strong> {{TO}}</div>
+    <div><strong>Cc:</strong> {{CC}}</div>
+    <div><strong>Subject:</strong> {{SUBJECT}}</div>
+  </div>
+
+  <p>{{GREETING}}</p>
+  <p>{{FRAMING}}</p>
+
+  <h2>Where we stand</h2>
+  <ul>{{WHERE_WE_STAND}}</ul>
+
+  <h2>What is happening this week</h2>
+  <ul>{{THIS_WEEK}}</ul>
+
+  <h2>What I need from you</h2>
+  <ul>{{WHAT_I_NEED}}</ul>
+
+  <h2>On my side this week</h2>
+  <ul>{{ON_MY_SIDE}}</ul>
+
+  <p class="signoff">{{SIGNOFF}}<br>{{SENDER}}</p>
+</body>
+</html>

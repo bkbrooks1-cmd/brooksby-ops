@@ -31,5 +31,19 @@
     "no_connector_accounts": []
   },
 
+  "_engagements_example": {
+    "_note": "Optional. Add an entry per engagement. Include a weekly_email block to have the Monday planner draft that engagement's weekly email — see skills/monday-planner/references/weekly-email.md. Keep the real 'engagements' list below; this _example key is ignored.",
+    "name": "Example Client ERP Migration",
+    "qb_customer": "Example Client",
+    "rate": 125,
+    "weekly_email": {
+      "template_path": "Projects/Example Client/templates/weekly_email.html",
+      "to": "erp-team@exampleclient.com",
+      "cc": "you@yourfirm.com",
+      "subject_format": "{date} Weekly Check-in - {theme}",
+      "save_to": "Projects/Example Client/deliverables/WeeklyCheckin_{date}.html"
+    }
+  },
+
   "engagements": []
 }

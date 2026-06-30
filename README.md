@@ -25,7 +25,11 @@ brooksby-ops/
       SKILL.md                               # first-time setup
       references/notion-schema.md            # the six-database schema spec
     daily-checkin/SKILL.md
-    monday-planner/SKILL.md
+    monday-planner/
+      SKILL.md
+      references/weekly-email.md             # generic vs per-engagement email setup
+  templates/
+    weekly_email_TEMPLATE.html               # generic weekly email, copy per engagement
   config.example.json                        # sanitized template (onboarding writes the real one)
   .gitignore                                 # keeps the real config and About Me/ out of the repo
   README.md
@@ -51,4 +55,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.3.3 — Phase 1 complete. Onboarding written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders (no hardcoded path); skill descriptions are person-neutral. Known instance-coupling: the Monday planner's team-email section is still wired to a specific (OFP) engagement and needs generalizing before it ships as a core skill. Remaining before beta: one unattended full-flow test with a real tester.
+Version 0.4.0 — Phase 1 complete; core skills are instance-clean. Onboarding fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders; descriptions are person-neutral. The Monday planner's weekly email is now a generic out-of-the-box template, with per-engagement custom templates driven by config (the OFP format becomes one such engagement template, not shipped code). Remaining before beta: one unattended full-flow test with a real tester.

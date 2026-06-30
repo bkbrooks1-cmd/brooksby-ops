@@ -18,7 +18,7 @@ Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion
 
 ## Voice
 
-Everything written here is in the user's voice: plain, direct, metrics-first. Apply the anti-AI-writing rules at `voice.style_guide_path` to all prose, especially the team email. No buzzwords, no filler, no em dashes.
+Everything written here is in the user's voice: plain, direct, metrics-first. If `voice.style_guide_path` points to a style guide, apply its rules to all prose, especially the weekly email. If it is empty or its file is unavailable, use a neutral plain-professional voice — never stop over a missing style guide. No buzzwords, no filler, no em dashes.
 
 ## Sources to read
 
@@ -48,24 +48,26 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 
 For each meeting this week that plausibly needs preparation (client meetings, anything with an external attendee or an agenda) and has no existing prep task: create a Task row (data source `collection://{notion.tasks_db}`) with Type = Prep, Due date = the day before the meeting, Source = Planning, Engagement linked when identifiable. If more than five prep tasks would be created, list them and ask before creating.
 
-## Output 3: the Monday team email draft
+## Output 3: weekly email draft(s)
 
-Generate the team email as an HTML file in the OFP Monday Checkin format (see template `Projects/Oregon fruit Products/deliverables/templates/OFP_Monday_Checkin_TEMPLATE.html`). Draft only — never send; the user reviews and sends from his own mailbox.
+Draft only — never send. The user reviews and sends from their own mailbox.
 
-Save to: `Projects/Oregon fruit Products/deliverables/OFP_Monday_Checkin_<M_D>_v1.html` (M_D = the Monday date, e.g. 6_29; bump _v2, _v3 on re-runs).
+Decide which emails to draft from config:
 
-Structure, in order, matching the template:
+- **No engagement is flagged for a weekly email** (none has a `weekly_email` block, or `engagements` is empty): produce one **generic weekly summary email** in the user's voice, using the default template at `${CLAUDE_PLUGIN_ROOT}/templates/weekly_email_TEMPLATE.html` (or an equivalent neutral format if that file is unavailable). Leave the recipient line blank for the user to fill. Save it as an HTML file in the user's chosen project folder, named `Weekly_Email_<M_D>_v1.html` (M_D = the Monday date; bump `_v2`, `_v3` on re-runs).
+- **One or more engagements are flagged** (Engagements row has `Weekly report` = true and the engagement has a `weekly_email` block in config): draft one email per flagged engagement, using that engagement's own `weekly_email` settings — its `template_path`, `to`, `cc`, `subject_format`, and `save_to`. Each engagement carries its own copied-and-customized template; the planner just fills it. See `references/weekly-email.md` for the config shape and how to set up an engagement template.
 
-- Header block: **To** (the OFP ERP team), **Cc** (Brian / Brooksby Consulting), **Subject** ("M/D Monday Checkin - <week theme>").
+Default generic structure (and the baseline every engagement template starts from), in order:
+
+- Header block: **To** (from config, or blank), **Cc** (from config, or the user from `user.name` / `user.company`), **Subject** (from `subject_format`, or "M/D Weekly Check-in - <week theme>").
 - One-line greeting, then a short framing note if relevant (short week, OOO, etc.).
 - **Where we stand** — 2 to 4 bullets on status and momentum.
-- **What is happening this week** — meetings, each with day, time, location, organizer, and who leads from the OFP side.
-- **What I need from each of you** — named asks, one bullet per person.
-- **On my side this week** — Brian's own commitments and any OOO.
-- One-line sign-off, then "Brian".
-- **Teal WEEK N block** — the two-cell table from the template: left cell teal `rgb(13,122,111)` with WEEK N, date range, theme, and owner; right cell with ACTIVITIES, DELIVERABLES, and NEXT.
+- **What is happening this week** — meetings, each with day, time, location, and organizer.
+- **What I need from you** — named asks, one bullet per person.
+- **On my side this week** — the user's own commitments and any OOO.
+- One-line sign-off, then the user's name from `voice.name` (fall back to `user.name`).
 
-Keep the styling exact: Calibri/Aptos 11pt, max-width 760px, the teal week block. The voice rules above still apply — plain, direct, no buzzwords, no em dashes.
+Apply the voice rules above. If `voice.style_guide_path` is empty or its file is unavailable, write in a neutral plain-professional voice — do not stop.
 
 ## Hard rules
 
