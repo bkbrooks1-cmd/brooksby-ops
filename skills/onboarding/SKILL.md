@@ -71,6 +71,19 @@ Capture as `IDEAS_ID` → config `notion.agent_ideas_db`.
 
 Known limitation: Notion's `place` property type cannot be created via DDL, so Engagements `Place` is provisioned as text. If the user wants a true location field, they convert it in the Notion UI after setup. Note this and move on — it is not setup-blocking.
 
+## Step 2.5 — Build the home dashboard
+
+Give the user a working cockpit on the home page instead of bare databases. Use Notion `create-view` with `parent_page_id` = the home page ID and `data_source_id` = the relevant captured ID. Each call appends a linked view block to the home page. Create these six, in order:
+
+1. **Open tasks** — `data_source_id` = Tasks, type `table`, configure: `FILTER "Status" != "Done" SORT BY "Due date" ASC SHOW "Name", "Status", "Priority", "Due date", "Engagement"`
+2. **Upcoming meetings** — Meetings, type `calendar`, configure: `CALENDAR BY "Date"`
+3. **Pipeline** — Leads, type `board`, configure: `GROUP BY "Stage"`
+4. **Active engagements** — Engagements, type `table`, configure: `FILTER "Status" = "Active" SHOW "Client", "Status", "Rate", "Start date"`
+5. **Content calendar** — Content Calendar, type `calendar`, configure: `CALENDAR BY "Post date"`
+6. **Agent ideas** — Agent Ideas, type `board`, configure: `GROUP BY "Status"`
+
+These are linked views — they point at the real databases, so edits in either place stay in sync. If a `create-view` call fails, note which view and continue; a missing dashboard view is cosmetic, not setup-blocking.
+
 ## Step 3 — Collect the rest of the config
 
 Gather the remaining values conversationally and assemble the full config:
@@ -93,8 +106,9 @@ Do not declare success until these pass:
 
 1. For each of the six config IDs, call Notion `fetch` and confirm it resolves and the title matches (Tasks, Meetings, Engagements, Leads & Opportunities, Content Calendar, Agent Ideas).
 2. Confirm the four relations resolved with the right names: Tasks has `Engagement` and `Meeting`; Engagements has `Tasks`, `Meetings`, and `Source lead`; Meetings has `Action items`; Leads has `Converted to`.
-3. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
-4. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
+3. Confirm the home page shows the six dashboard views.
+4. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
+5. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
 
 Report each check as pass or fail. If anything fails, name it and stop there — a half-built OS that reports its gap beats a silent one.
 

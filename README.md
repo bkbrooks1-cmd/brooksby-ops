@@ -44,4 +44,4 @@ The real `solo-os-config.json` is git-ignored and never ships. Only the sanitize
 
 ## Status
 
-Version 0.2.0 — Phase 1. Onboarding skill written and its API provisioning verified against the live Notion connector (databases + two-way relations create cleanly). Three skills packaged and config-driven. Next: dry-run onboarding against a fresh empty Notion, then a polished home-page/views template.
+Version 0.3.0 — Phase 1. Onboarding skill written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Three skills packaged and config-driven. Remaining before beta: genericize the shipped template's instance labels and run an unattended full-flow test with a real tester.
