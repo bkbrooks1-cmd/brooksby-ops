@@ -9,7 +9,7 @@ The two-minute view that keeps the plan honest between Mondays. Read fast, show 
 
 ## Config
 
-This skill reads instance values from `solo-os-config.json` at the Solopreneur OS project root (`Projects/Solopreneur OS/solo-os-config.json`). Load it first.
+This skill reads instance values from `solo-os-config.json`. Locate it by searching the connected Cowork project folder(s) for a file named exactly `solo-os-config.json` and load the first match — do not assume a specific folder name or path. (Onboarding writes this file to the folder the user chose at setup.)
 
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the check-in."

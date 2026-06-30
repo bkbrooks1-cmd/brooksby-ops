@@ -45,10 +45,10 @@ After that, say "check in" for the daily view or "plan my week" for the Monday p
 
 ## How config works
 
-Every skill reads `solo-os-config.json` from the Solopreneur OS project root before it runs. If the file is missing, or a required key is absent, the skill stops and points you to onboarding. No instance data — IDs, emails, paths, customer names, rates — is ever hardcoded in a skill.
+Every skill finds `solo-os-config.json` by searching your connected Cowork project folder(s) by filename before it runs — no fixed path is assumed, so it works whatever you named the folder. If the file is missing, or a required key is absent, the skill stops and points you to onboarding. No instance data — IDs, emails, paths, customer names, rates — is ever hardcoded in a skill.
 
 The real `solo-os-config.json` is git-ignored and never ships. Only the sanitized `config.example.json` is committed.
 
 ## Status
 
-Version 0.3.1 — Phase 1. Onboarding skill written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install narrative rewritten around onboarding, plus a Notion access pre-check and user-confirmed config folder. Three skills packaged and config-driven. Remaining before beta: align the daily skills' config-path lookup with the user-chosen folder, then run an unattended full-flow test with a real tester.
+Version 0.3.2 — Phase 1 complete. Onboarding written and fully dry-run verified against the live Notion connector: six databases + two-way relations build cleanly in a fresh workspace, a check-in read works end to end, and the home dashboard (six linked views) builds programmatically. Install rewritten around onboarding, with a Notion access pre-check and user-confirmed config folder. All three skills locate config by filename across connected folders (no hardcoded path). Remaining before beta: one unattended full-flow test with a real tester.
