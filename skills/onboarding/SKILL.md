@@ -66,11 +66,11 @@ CREATE TABLE ("Name" TITLE, "Company" RICH_TEXT, "Stage" SELECT('Lead':blue, 'Qu
 ```
 Capture as `LEAD_ID` → config `notion.leads_db`. Auto-creates `Source lead` on Engagements.
 
-**5. Content Calendar** (standalone):
+**5. Content Calendar** (the post pipeline + published log; the draft/final copy lives in each page's body):
 ```
-CREATE TABLE ("Title" TITLE, "Status" SELECT('Idea':gray, 'Drafted':yellow, 'Scheduled':orange, 'Posted':green), "Series" SELECT('Standalone':gray), "Post date" DATE, "Performance notes" RICH_TEXT)
+CREATE TABLE ("Title" TITLE, "Status" SELECT('Idea':gray, 'Drafted':yellow, 'Scheduled':orange, 'Posted':green), "Platform" SELECT('LinkedIn':blue, 'Substack':orange, 'Both':purple), "Series" SELECT('Standalone':gray), "Series week" RICH_TEXT, "Post date" DATE, "Hook" RICH_TEXT, "Hashtags" RICH_TEXT, "Impressions" NUMBER, "Reactions" NUMBER, "Performance notes" RICH_TEXT)
 ```
-Capture as `CONTENT_ID` → config `notion.content_db`.
+Capture as `CONTENT_ID` → config `notion.content_db`. The user adds their own `Series` options; `Impressions`/`Reactions` are a lightweight analytics pair (add more metric columns if the user wants them).
 
 **6. Agent Ideas** (standalone):
 ```
@@ -80,7 +80,7 @@ Capture as `IDEAS_ID` → config `notion.agent_ideas_db`.
 
 **7. Content Ideas** (relates to Content Calendar — created after it):
 ```
-CREATE TABLE ("Idea" TITLE, "Platform" SELECT('LinkedIn':blue, 'Substack':orange, 'Both':purple), "Status" SELECT('Backlog':gray, 'Next':yellow, 'Drafting':blue, 'Promoted':green, 'Dropped':red), "Topic" RICH_TEXT, "Angle" RICH_TEXT, "Monetization" MULTI_SELECT('Consulting lead-gen':green, 'Substack paid subs':orange, 'Product/course/workshop':purple), "Monetization notes" RICH_TEXT, "Priority" SELECT('High':green, 'Medium':yellow, 'Low':gray), "Effort" SELECT('S':green, 'M':yellow, 'L':red), "Target date" DATE, "Notes" RICH_TEXT, "Calendar post" RELATION('CONTENT_ID', DUAL 'Idea source'))
+CREATE TABLE ("Idea" TITLE, "Platform" SELECT('LinkedIn':blue, 'Substack':orange, 'Both':purple), "Status" SELECT('Backlog':gray, 'Next':yellow, 'Drafting':blue, 'Promoted':green, 'Dropped':red), "Hook" RICH_TEXT, "Theme" RICH_TEXT, "Topic" RICH_TEXT, "Angle" RICH_TEXT, "Monetization" MULTI_SELECT('Consulting lead-gen':green, 'Substack paid subs':orange, 'Product/course/workshop':purple), "Monetization notes" RICH_TEXT, "Priority" SELECT('High':green, 'Medium':yellow, 'Low':gray), "Effort" SELECT('S':green, 'M':yellow, 'L':red), "Target date" DATE, "Notes" RICH_TEXT, "Calendar post" RELATION('CONTENT_ID', DUAL 'Idea source'))
 ```
 Capture as `CONTENT_IDEAS_ID` → config `notion.content_ideas_db`. Auto-creates `Idea source` on Content Calendar.
 

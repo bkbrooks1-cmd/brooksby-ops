@@ -104,18 +104,24 @@ Config key: `notion.leads_db`. Title property: **Name** (title).
 
 ## Database 5 — Content Calendar
 
-Config key: `notion.content_db`. Title property: **Title** (title).
+Config key: `notion.content_db`. Title property: **Title** (title). This is the post pipeline **and** the published log: a post moves Idea → Drafted → Scheduled → Posted, the full draft/final copy lives in the **page body**, and analytics land in the properties once posted.
 
 | Property | Type | Options / config |
 |---|---|---|
 | Title | title | — |
 | Status | select | Idea (gray), Drafted (yellow), Scheduled (orange), Posted (green) |
-| Series | select | Outgrown (blue), Standalone (gray) |
+| Platform | select | LinkedIn (blue), Substack (orange), Both (purple) |
+| Series | select | Standalone (gray) — users add their own series options |
+| Series week | text | e.g. "Wk 2", "PM-1" |
 | Post date | date | — |
+| Hook | text | the first line / opening hook |
+| Hashtags | text | — |
+| Impressions | number | lightweight analytics |
+| Reactions | number | lightweight analytics |
 | Performance notes | text | — |
 | Idea source | relation → Content Ideas | pass 2 (mirror of Content Ideas → Calendar post; may be auto-created) |
 
-Note: the **"Outgrown"** series option is instance-specific (a Brian content series). Drop or genericize it in the shipped template; keep "Standalone".
+Note: **Series** ships with only "Standalone"; users add their own series names (the reference workspace uses List of Demands, Outgrown, PM Track). The full post copy is written in the page body, not a property. `Impressions`/`Reactions` are a deliberately lightweight analytics pair — add more metric columns (comments, reposts, an engagement-rate formula) if a user wants the full picture.
 
 ---
 
@@ -143,6 +149,8 @@ Config key: `notion.content_ideas_db`. Title property: **Idea** (title). A backl
 | Idea | title | — |
 | Platform | select | LinkedIn (blue), Substack (orange), Both (purple) |
 | Status | select | Backlog (gray), Next (yellow), Drafting (blue), Promoted (green), Dropped (red) |
+| Hook | text | the premise / opening line |
+| Theme | text | freeform comma-separated tags (e.g. "Discovery, AI, Client story") |
 | Topic | text | — |
 | Angle | text | the specific hook or thesis |
 | Monetization | multi-select | Consulting lead-gen (green), Substack paid subs (orange), Product/course/workshop (purple) |
