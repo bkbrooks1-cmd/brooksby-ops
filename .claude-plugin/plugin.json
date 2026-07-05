@@ -1,6 +1,6 @@
 {
   "name": "brooksby-ops",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Solopreneur OS — config-driven agents for solo consultants who run their business out of Notion, Gmail, Calendar, and Granola. Onboarding, daily check-in, meeting prep, meeting capture, Monday planner, and Friday wrap.",
   "author": {
     "name": "Brian Brooksby",

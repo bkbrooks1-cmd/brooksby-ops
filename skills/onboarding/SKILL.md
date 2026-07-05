@@ -1,11 +1,11 @@
 ---
 name: onboarding
-description: Stand up the Solopreneur OS for a new user from an empty Notion workspace. Use when someone says "set up the OS", "onboard me", "first-time setup", "get me started", "install the Solopreneur OS", or when any other skill reports that solo-os-config.json is missing. Provisions the six Notion databases, captures their IDs into config, connects Gmail/Calendar/Notion, and verifies the install with a check-in.
+description: Stand up the Solopreneur OS for a new user from an empty Notion workspace. Use when someone says "set up the OS", "onboard me", "first-time setup", "get me started", "install the Solopreneur OS", or when any other skill reports that solo-os-config.json is missing. Provisions the seven Notion databases, captures their IDs into config, connects Gmail/Calendar/Notion, and verifies the install with a check-in.
 ---
 
 # Onboarding
 
-Take a new user from nothing to a working daily check-in. This skill builds the six Notion databases the OS runs on, writes their IDs into `solo-os-config.json`, walks through connecting the tools, and verifies the whole thing before handing off.
+Take a new user from nothing to a working daily check-in. This skill builds the seven Notion databases the OS runs on, writes their IDs into `solo-os-config.json`, walks through connecting the tools, and verifies the whole thing before handing off.
 
 Run it once per install. It is the make-or-break setup flow: if it works unattended, the OS travels to a new person; if it doesn't, nothing else matters.
 
@@ -26,7 +26,7 @@ If a connector is missing, stop and tell the user exactly which one to enable in
 
 Call Notion `fetch` with id `"self"` to confirm the connected workspace and the user's identity. State the workspace name back to the user so they know where the databases will land.
 
-Ask the user for the **home page**: the parent under which the six databases will be created. Accept a Notion URL or let them name a page to search for. Resolve it to a page ID. This ID becomes `notion.home_page` in config. If they have no page yet, create one titled with their company or "Solopreneur OS" and use that.
+Ask the user for the **home page**: the parent under which the seven databases will be created. Accept a Notion URL or let them name a page to search for. Resolve it to a page ID. This ID becomes `notion.home_page` in config. If they have no page yet, create one titled with their company or "Solopreneur OS" and use that.
 
 Then confirm the **project folder**: ask the user which Cowork project folder the OS should live in. That folder is where `solo-os-config.json` will be written in Step 4. Do not assume a folder — confirm it explicitly, and create it if it does not exist.
 
@@ -34,7 +34,7 @@ Then confirm the **project folder**: ask the user which Cowork project folder th
 
 Before creating anything real, confirm the integration can write under the home page. Create one throwaway database under it (a single-column "Access check") and confirm it returns an ID, then trash it. If creation is denied, stop and tell the user in plain language: open the home page in Notion, click the ••• menu, choose Connections, add the integration, then resume. This catches the most common setup failure — the integration not being granted page access — before any real work begins.
 
-## Step 2 — Provision the six databases
+## Step 2 — Provision the seven databases
 
 The exact creation procedure is below and is self-contained — you do not need any external file to run it. (When installed as a plugin, `${CLAUDE_PLUGIN_ROOT}/skills/onboarding/references/notion-schema.md` carries extra rationale and genericization notes, but reading it is optional.)
 
@@ -78,11 +78,17 @@ CREATE TABLE ("Idea" TITLE, "Status" SELECT('Backlog':gray, 'Next':yellow, 'Buil
 ```
 Capture as `IDEAS_ID` → config `notion.agent_ideas_db`.
 
+**7. Content Ideas** (relates to Content Calendar — created after it):
+```
+CREATE TABLE ("Idea" TITLE, "Platform" SELECT('LinkedIn':blue, 'Substack':orange, 'Both':purple), "Status" SELECT('Backlog':gray, 'Next':yellow, 'Drafting':blue, 'Promoted':green, 'Dropped':red), "Topic" RICH_TEXT, "Angle" RICH_TEXT, "Monetization" MULTI_SELECT('Consulting lead-gen':green, 'Substack paid subs':orange, 'Product/course/workshop':purple), "Monetization notes" RICH_TEXT, "Priority" SELECT('High':green, 'Medium':yellow, 'Low':gray), "Effort" SELECT('S':green, 'M':yellow, 'L':red), "Target date" DATE, "Notes" RICH_TEXT, "Calendar post" RELATION('CONTENT_ID', DUAL 'Idea source'))
+```
+Capture as `CONTENT_IDEAS_ID` → config `notion.content_ideas_db`. Auto-creates `Idea source` on Content Calendar.
+
 Known limitation: Notion's `place` property type cannot be created via DDL, so Engagements `Place` is provisioned as text. If the user wants a true location field, they convert it in the Notion UI after setup. Note this and move on — it is not setup-blocking.
 
 ## Step 2.5 — Build the home dashboard
 
-Give the user a working cockpit on the home page instead of bare databases. Use Notion `create-view` with `parent_page_id` = the home page ID and `data_source_id` = the relevant captured ID. Each call appends a linked view block to the home page. Create these six, in order:
+Give the user a working cockpit on the home page instead of bare databases. Use Notion `create-view` with `parent_page_id` = the home page ID and `data_source_id` = the relevant captured ID. Each call appends a linked view block to the home page. Create these seven, in order:
 
 1. **Open tasks** — `data_source_id` = Tasks, type `table`, configure: `FILTER "Status" != "Done" SORT BY "Due date" ASC SHOW "Name", "Status", "Priority", "Due date", "Engagement"`
 2. **Upcoming meetings** — Meetings, type `calendar`, configure: `CALENDAR BY "Date"`
@@ -90,6 +96,7 @@ Give the user a working cockpit on the home page instead of bare databases. Use 
 4. **Active engagements** — Engagements, type `table`, configure: `FILTER "Status" = "Active" SHOW "Client", "Status", "Rate", "Start date"`
 5. **Content calendar** — Content Calendar, type `calendar`, configure: `CALENDAR BY "Post date"`
 6. **Agent ideas** — Agent Ideas, type `board`, configure: `GROUP BY "Status"`
+7. **Content ideas** — Content Ideas, type `board`, configure: `GROUP BY "Status"`
 
 These are linked views — they point at the real databases, so edits in either place stay in sync. If a `create-view` call fails, note which view and continue; a missing dashboard view is cosmetic, not setup-blocking.
 
@@ -114,9 +121,9 @@ Never write real IDs or emails into `config.example.json` — that file stays sa
 
 Do not declare success until these pass:
 
-1. For each of the six config IDs, call Notion `fetch` and confirm it resolves and the title matches (Tasks, Meetings, Engagements, Leads & Opportunities, Content Calendar, Agent Ideas).
-2. Confirm the four relations resolved with the right names: Tasks has `Engagement` and `Meeting`; Engagements has `Tasks`, `Meetings`, and `Source lead`; Meetings has `Action items`; Leads has `Converted to`.
-3. Confirm the home page shows the six dashboard views.
+1. For each of the seven config IDs, call Notion `fetch` and confirm it resolves and the title matches (Tasks, Meetings, Engagements, Leads & Opportunities, Content Calendar, Agent Ideas, Content Ideas).
+2. Confirm the relations resolved with the right names: Tasks has `Engagement` and `Meeting`; Engagements has `Tasks`, `Meetings`, and `Source lead`; Meetings has `Action items`; Leads has `Converted to`; Content Ideas has `Calendar post` and Content Calendar has `Idea source`.
+3. Confirm the home page shows the seven dashboard views.
 4. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
 5. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
 

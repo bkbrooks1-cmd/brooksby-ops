@@ -19,7 +19,8 @@
     "engagements_db": "<engagements data source id>",
     "leads_db": "<leads data source id>",
     "content_db": "<content calendar data source id>",
-    "agent_ideas_db": "<agent ideas data source id>"
+    "agent_ideas_db": "<agent ideas data source id>",
+    "content_ideas_db": "<content ideas data source id>"
   },
 
   "email": {
