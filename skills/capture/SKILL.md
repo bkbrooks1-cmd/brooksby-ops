@@ -16,7 +16,7 @@ If the file is missing, or any required key below is absent, stop and say:
 
 Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`, `firewall.no_connector_accounts`.
 
-Optional: `capture.lookback` (one of `this_week`, `last_week`, `last_30_days`; default `last_week`).
+Optional: `capture.lookback` (one of `this_week`, `last_week`, `last_30_days`; default `last_week`). Also optional: a `content` block (see config.example.json) — enables idea notes to the content vault (step 5c). If absent, skip step 5c silently.
 
 ## Prerequisite
 
@@ -68,6 +68,17 @@ Write minutes in the user's voice per `voice.style_guide_path` if set; otherwise
 
 If the meeting is client-facing (it has external attendees) and its engagement has a `project_root` in config, also produce a Word (.docx) copy of the same minutes and save it to that engagement's folder — for example `<project_root>/deliverables/Minutes_<YYYY-MM-DD>_<Client>.docx`. Use the docx skill for clean formatting. The Word file is the shareable artifact; the Notion page stays the system of record. Internal-only meetings, or meetings whose engagement has no `project_root`, get the Notion page only. Include the Word file in the disposition list and create it on the same confirmation.
 
+### 5c. Idea note for teachable insights (only if a `content` block exists in config)
+
+If a meeting surfaced an insight worth teaching publicly — a pattern, lesson, or method, not client specifics — also prepare a markdown idea note for the content vault at `content.ideas_path`:
+
+- **Sanitize.** No client names, no figures, no confidential detail. The insight must stand on its own without the engagement behind it.
+- **Firewall.** Meetings on engagements matching `firewall.no_connector_accounts` never feed content. Skip them here entirely, even sanitized.
+- **Output contract.** Follow the contract at `content.contract_path` exactly: frontmatter (`type`, `created`, `status`, `tags`) plus a folder-qualified hub wikilink. The paste-block lives in that file — read it, do not reconstruct from memory.
+- One insight per note; filename slugged from the insight.
+
+The vault owns content; Notion owns tasks. Do not create a Task or Content Ideas row for the note — the Wednesday synthesis session picks it up from the vault. Include proposed idea notes in the disposition list (step 7) and write them on the same confirmation.
+
 ### 6. Extract action items into Tasks (proposed, not yet created)
 
 For each action item, prepare a row for the Tasks data source `collection://{notion.tasks_db}`:
@@ -81,7 +92,7 @@ For each action item, prepare a row for the Tasks data source `collection://{not
 
 ### 7. Disposition
 
-Show the user everything proposed before writing anything: the meeting pages to create, and under each, the action-item Tasks. Then:
+Show the user everything proposed before writing anything: the meeting pages to create, and under each, the action-item Tasks and any idea notes (step 5c). Then:
 
 - Create only on confirmation. Offer "yes to all" or let the user pick per meeting.
 - After creating each Meeting page, link its action-item Tasks via the `Meeting` / `Action items` relation.
@@ -92,5 +103,6 @@ Show the user everything proposed before writing anything: the meeting pages to 
 - Create nothing without confirmation. Propose, then write on a yes.
 - Never create a duplicate Meeting page — always dedupe in step 2 first.
 - Drafts only for anything leaving the building; the user sends. Accounts listed in `firewall.no_connector_accounts` are never connected — capture their meeting notes into Notion as normal (Granola is the user's own record), but never send anything to those accounts.
+- Idea notes (step 5c) are always sanitized and never come from firewalled engagements. When in doubt about whether a detail is client-confidential, leave it out.
 - If Granola is unavailable mid-run, stop and say so; do not fabricate minutes.
 - Never edit or re-summarize a meeting page that already exists unless the user asks.

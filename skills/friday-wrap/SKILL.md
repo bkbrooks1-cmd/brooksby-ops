@@ -14,13 +14,14 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before the weekly wrap."
 
-Required keys: `notion.home_page`, `notion.tasks_db`. Used if present: `notion.leads_db`, `notion.meetings_db`.
+Required keys: `notion.home_page`, `notion.tasks_db`. Used if present: `notion.leads_db`, `notion.meetings_db`, and a `content` block (see config.example.json) — enables the content-drafts check and vault-health step below.
 
 ## Sources to read
 
 1. **Notion Tasks** (`collection://{notion.tasks_db}`): tasks marked Done with a due date or completion in the last 7 days (what got done), and all open tasks (Status not Done) with their due dates (what is still live, and what is overdue).
 2. **Notion Leads** (`collection://{notion.leads_db}`), if present: stage changes and any lead with a next-action date that has passed.
 3. **Notion Meetings** (`collection://{notion.meetings_db}`), if present: meetings captured this week, for the record.
+4. **Content vault drafts**, only if a `content` block exists in config: notes in `content.newsletter_drafts_path` and `content.linkedin_drafts_path` whose frontmatter is still `status: drafted`.
 
 ## What the wrap does
 
@@ -42,15 +43,22 @@ Show the list with a proposed move per item. Apply only on confirmation — neve
 
 One line each: leads whose next action is past due (flag for Monday), and the count of meetings captured this week. Keep it short — this is a record, not a report.
 
+### 4. Content drafts and vault health (only if a `content` block exists in config)
+
+Unpublished drafts roll forward, same as tasks: any note still at `status: drafted` in the newsletter or LinkedIn drafts folders goes into Carryover with its vault path, so the Monday planner picks it up. Published this week (frontmatter moved to `published` with a date) gets counted in Completed. Never change a draft's frontmatter — publishing is manual; this step only reads.
+
+Then run the weekly vault-health checklist at `content.vault_health_checklist` and report the result as one-liners: what passed, what needs a fix. Propose fixes; apply only on confirmation.
+
 ## Output: the week-wrap page in Notion
 
 Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week wrap — YYYY-MM-DD" (this Friday's date), with sections in order:
 
 1. **Completed this week** — done items by engagement.
-2. **Carryover** — what rolled forward, with the new dates the user confirmed.
+2. **Carryover** — what rolled forward, with the new dates the user confirmed. Includes unpublished content drafts with their vault paths, when the content block is configured.
 3. **Still open and on track** — open tasks due next week, untouched.
 4. **Pipeline / meetings** — the one-liners from step 3, if available.
-5. **Seed for Monday** — a short note the Monday planner can start from: the carried-forward priorities and anything explicitly flagged.
+5. **Vault health** — the checklist one-liners from step 4, if the content block is configured.
+6. **Seed for Monday** — a short note the Monday planner can start from: the carried-forward priorities and anything explicitly flagged.
 
 Write in the user's voice per `voice.style_guide_path` if set; otherwise neutral plain-professional. No buzzwords, no em dashes.
 

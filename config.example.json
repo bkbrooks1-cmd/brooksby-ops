@@ -36,6 +36,17 @@
     "lookback": "last_week"
   },
 
+  "_content_example": {
+    "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a local content vault: Notion owns tasks and calendar; the vault owns drafts and research. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), and the drafts/vault-health checks in friday-wrap. Omit the block entirely to run the OS without a content pipeline.",
+    "vault_root": "D:/YourVault",
+    "contract_path": "D:/YourVault/CONTRACT.md",
+    "ideas_path": "D:/YourVault/02-Ideas",
+    "newsletter_drafts_path": "D:/YourVault/04-Drafts/Newsletters",
+    "linkedin_drafts_path": "D:/YourVault/04-Drafts/LinkedIn-Posts",
+    "metrics_log_path": "D:/YourVault/05-Metrics",
+    "vault_health_checklist": "D:/YourVault/Vault-Health-Checklist.md"
+  },
+
   "_engagements_example": {
     "_note": "Optional. Add an entry per engagement. Include a weekly_email block to have the Monday planner draft that engagement's weekly email — see skills/monday-planner/references/weekly-email.md. Keep the real 'engagements' list below; this _example key is ignored.",
     "name": "Example Client ERP Migration",

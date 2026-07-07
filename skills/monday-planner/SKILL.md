@@ -16,6 +16,8 @@ If the file is missing, or any required key below is absent, stop and say:
 
 Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `notion.engagements_db`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
 
+Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables (section 6 below). If absent, skip everything content-related — no error, no mention.
+
 ## Voice
 
 Everything written here is in the user's voice: plain, direct, metrics-first. If `voice.style_guide_path` points to a style guide, apply its rules to all prose, especially the weekly email. If it is empty or its file is unavailable, use a neutral plain-professional voice — never stop over a missing style guide. No buzzwords, no filler, no em dashes.
@@ -41,12 +43,20 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 3. **Top priorities** — three to five, drawn from due tasks, overdue items, and meeting prep. Outcome phrasing, not activity phrasing.
 4. **Tasks due this week** — linked task list by day.
 5. **Pipeline** — leads needing action this week, each with its next action. Flag leads missing a next action.
-6. **Meeting capture** — only if Granola is connected: run the capture routine (canonical steps live in the capture skill) for last week's meetings. For each meeting not already in the Meetings DB, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Fold the resulting action items into "Tasks due this week" and "Carryover" above. Omit this section entirely when Granola is not connected.
-7. **Carryover** — overdue open tasks rolled in from prior weeks.
+6. **Content** — only if a `content` block exists in config. Division of labor: Notion owns tasks and calendar; the content vault owns drafts and research. List the three standing deliverables for the week, each with the vault path where its draft lives:
+   - "Newsletter #N" — N = next issue number, inferred from `content.newsletter_drafts_path` (ask if unclear). Path: that folder.
+   - "LinkedIn posts x3" — derived from the newsletter. Path: `content.linkedin_drafts_path`.
+   - "Metrics log" — the weekly numbers entry. Path: `content.metrics_log_path` if set, else the vault root.
+
+   Also check both drafts folders for notes still at `status: drafted` from prior weeks and flag them here as unpublished. Omit this section entirely when no `content` block exists.
+7. **Meeting capture** — only if Granola is connected: run the capture routine (canonical steps live in the capture skill) for last week's meetings. For each meeting not already in the Meetings DB, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Fold the resulting action items into "Tasks due this week" and "Carryover" above. Omit this section entirely when Granola is not connected.
+8. **Carryover** — overdue open tasks rolled in from prior weeks.
 
 ## Output 2: prep tasks
 
 For each meeting this week that plausibly needs preparation (client meetings, anything with an external attendee or an agenda) and has no existing prep task: create a Task row (data source `collection://{notion.tasks_db}`) with Type = Prep, Due date = the day before the meeting, Source = Planning, Engagement linked when identifiable. If more than five prep tasks would be created, list them and ask before creating.
+
+If a `content` block exists in config, also create the three standing content Tasks for the week — "Newsletter #N", "LinkedIn posts x3", "Metrics log" — each with Type = Deliverable, Source = Planning, Due date = this Friday, and the draft's vault path in the task body. Dedupe first: if an open task with the same name already exists (a carryover), roll it instead of creating a twin.
 
 ## Output 3: weekly email draft(s)
 
