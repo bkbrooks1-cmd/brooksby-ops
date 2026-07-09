@@ -15,7 +15,7 @@ Confirm the prerequisites in plain language. The user needs:
 
 1. The **Notion** connector enabled in Cowork.
 2. The **Gmail** and **Google Calendar** connectors enabled (the daily skills read both).
-3. One Notion page they will let the OS use as its home — new or existing — shared with the Notion integration so it can create databases under it (in Notion: open the page → ••• menu → Connections → add the integration).
+3. One Notion page to use as the OS home — new or existing. The Notion MCP connector acts with the user's full Notion permissions, so once it is connected in Cowork, the OS can create databases under any page the user can edit — there is no separate per-page sharing step. The user just needs to decide which page is home. (To connect: in Claude, Settings → Connectors → Notion; or in Notion, Settings → Notion MCP → click Claude, which routes to the same Claude connector page.)
 4. A Cowork project folder for the OS, where `solo-os-config.json` will be written.
 
 **Granola** is optional but needed for meeting capture (used by the check-in and the planner to pull recent meetings into Notion minutes and action items). Connect it too if the user wants that; the OS works without it, just without automatic meeting capture.
@@ -32,7 +32,7 @@ Then confirm the **project folder**: ask the user which Cowork project folder th
 
 ## Step 1.5 — Verify Notion access before building
 
-Before creating anything real, confirm the integration can write under the home page. Create one throwaway database under it (a single-column "Access check") and confirm it returns an ID, then trash it. If creation is denied, stop and tell the user in plain language: open the home page in Notion, click the ••• menu, choose Connections, add the integration, then resume. This catches the most common setup failure — the integration not being granted page access — before any real work begins.
+Before creating anything real, confirm the connector can write under the home page. Create one throwaway database under it (a single-column "Access check") and confirm it returns an ID, then trash it. If creation is denied, the cause is almost always the Notion connector not being connected, or the user being signed into a different Notion account than the one that owns the home page. Stop and tell the user in plain language: in Claude, open Settings → Connectors and confirm Notion shows Connected (reconnect if it does not), and make sure it is the Notion account that can edit the home page. Then resume. This catches the most common setup failure before any real work begins.
 
 ## Step 2 — Provision the seven databases
 
