@@ -14,7 +14,7 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before the weekly wrap."
 
-Required keys: `notion.home_page`, `notion.tasks_db`. Used if present: `notion.leads_db`, `notion.meetings_db`, and a `content` block (see config.example.json) — enables the content-drafts check and vault-health step below.
+Required keys: `notion.home_page`, `notion.tasks_db`. Used if present: `notion.leads_db`, `notion.meetings_db`, `notion.content_db`, and a `content` block (see config.example.json) — enables the content-drafts check, the metrics step, and the vault-health step below.
 
 ## Sources to read
 
@@ -49,6 +49,10 @@ Unpublished drafts roll forward, same as tasks: any note still at `status: draft
 
 Then run the weekly vault-health checklist at `content.vault_health_checklist` and report the result as one-liners: what passed, what needs a fix. Propose fixes; apply only on confirmation.
 
+### 5. Content metrics (only if a `content` block exists in config)
+
+Run the metrics collection for the pieces published this week — the canonical steps live in the `collect-metrics` skill. In short: find this week's `Status = Posted` rows in the Content Calendar, auto-pull the public LinkedIn counts (reactions/comments/reposts) if an Apify actor is configured, and prompt Brian for the private numbers (LinkedIn impressions + profile views, Substack opens/open-rate/new-subs). Write the results to the matching Content Calendar rows **and** append the week's block to `content.metrics_log_path` — both together, never one without the other. Report what was written and name any post whose 7-day window hasn't closed yet so it carries to next week. Confirm before writing Notion.
+
 ## Output: the week-wrap page in Notion
 
 Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week wrap — YYYY-MM-DD" (this Friday's date), with sections in order:
@@ -58,7 +62,8 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 3. **Still open and on track** — open tasks due next week, untouched.
 4. **Pipeline / meetings** — the one-liners from step 3, if available.
 5. **Vault health** — the checklist one-liners from step 4, if the content block is configured.
-6. **Seed for Monday** — a short note the Monday planner can start from: the carried-forward priorities and anything explicitly flagged.
+6. **Content metrics** — the numbers logged this week and anything still pending, if the content block is configured.
+7. **Seed for Monday** — a short note the Monday planner can start from: the carried-forward priorities and anything explicitly flagged.
 
 Write in the user's voice per `voice.style_guide_path` if set; otherwise neutral plain-professional. No buzzwords, no em dashes.
 

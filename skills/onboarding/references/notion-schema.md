@@ -114,14 +114,19 @@ Config key: `notion.content_db`. Title property: **Title** (title). This is the 
 | Series | select | Standalone (gray) — users add their own series options |
 | Series week | text | e.g. "Wk 2", "PM-1" |
 | Post date | date | — |
+| Live URL | url | the live link, set at publish by mark-published |
 | Hook | text | the first line / opening hook |
 | Hashtags | text | — |
-| Impressions | number | lightweight analytics |
-| Reactions | number | lightweight analytics |
+| Impressions | number | analytics (LinkedIn, manual — owner-only) |
+| Reactions | number | analytics (LinkedIn, auto) |
+| Comments | number | analytics (LinkedIn, auto) |
+| Reposts | number | analytics (LinkedIn, auto) |
+| Profile views | number | analytics (LinkedIn, manual — owner-only) |
+| Opens | number | analytics (Substack, manual — dashboard) |
 | Performance notes | text | — |
 | Idea source | relation → Content Ideas | pass 2 (mirror of Content Ideas → Calendar post; may be auto-created) |
 
-Note: **Series** ships with only "Standalone"; users add their own series names (the reference workspace uses List of Demands, Outgrown, PM Track). The full post copy is written in the page body, not a property. `Impressions`/`Reactions` are a deliberately lightweight analytics pair — add more metric columns (comments, reposts, an engagement-rate formula) if a user wants the full picture.
+Note: **Series** ships with only "Standalone"; users add their own series names (the reference workspace uses List of Demands, Outgrown, PM Track). The full post copy is written in the page body, not a property. `Live URL` is set at publish time by the mark-published skill. The analytics columns split by how they're gathered: `Reactions`/`Comments`/`Reposts` are public LinkedIn counts (auto-pullable via Apify); `Impressions`/`Profile views` are owner-only LinkedIn analytics (manual); `Opens` is Substack (manual dashboard). The collect-metrics skill fills these.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "name": "brooksby-ops",
-  "version": "0.10.1",
-  "description": "Solopreneur OS — config-driven agents for solo consultants who run their business out of Notion, Gmail, Calendar, and Granola. Onboarding, daily check-in, meeting prep, meeting capture, Monday planner, and Friday wrap. Optional content-vault hooks: standing content deliverables, sanitized idea notes from meetings, and draft/vault-health checks in the wrap.",
+  "version": "0.11.0",
+  "description": "Solopreneur OS — config-driven agents for solo consultants who run their business out of Notion, Gmail, Calendar, and Granola. Onboarding, daily check-in, meeting prep, meeting capture, Monday planner, and Friday wrap, plus a full content engine: wednesday-synthesis (weekly angles + forward theme map), draft-content (newsletter + variable-count LinkedIn posts, editable with variants), polish-and-score (voice + humanizer + newsletter-voice, LinkedIn post-scoring), mark-published (four-tracker publish sync), and collect-metrics. Optional content-vault hooks wire the planner, capture, and wrap into a local markdown vault.",
   "author": {
     "name": "Brian Brooksby",
     "email": "brianb@brooksbyconsulting.com"
@@ -12,6 +12,7 @@
     "consulting",
     "notion",
     "planning",
-    "productivity"
+    "productivity",
+    "content"
   ]
 }

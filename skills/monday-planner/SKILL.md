@@ -16,7 +16,7 @@ If the file is missing, or any required key below is absent, stop and say:
 
 Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `notion.engagements_db`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
 
-Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables (section 6 below). If absent, skip everything content-related — no error, no mention.
+Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables and the roadmap slot (section 6 below); `content.theme_map_path` and `content.default_post_count` are used if set. If absent, skip everything content-related — no error, no mention.
 
 ## Voice
 
@@ -43,9 +43,9 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 3. **Top priorities** — three to five, drawn from due tasks, overdue items, and meeting prep. Outcome phrasing, not activity phrasing.
 4. **Tasks due this week** — linked task list by day.
 5. **Pipeline** — leads needing action this week, each with its next action. Flag leads missing a next action.
-6. **Content** — only if a `content` block exists in config. Division of labor: Notion owns tasks and calendar; the content vault owns drafts and research. List the three standing deliverables for the week, each with the vault path where its draft lives:
+6. **Content** — only if a `content` block exists in config. Division of labor: Notion owns tasks and calendar; the content vault owns drafts and research. First, if `content.theme_map_path` is set, read it and open this section with the **roadmap slot**: one line naming the theme the forward map has queued for this week (series + working theme), so the week's content aims at something. Then list the standing deliverables, each with the vault path where its draft lives:
    - "Newsletter #N" — N = next issue number, inferred from `content.newsletter_drafts_path` (ask if unclear). Path: that folder.
-   - "LinkedIn posts x3" — derived from the newsletter. Path: `content.linkedin_drafts_path`.
+   - "LinkedIn posts xN" — N derived posts from the newsletter, where N = `content.default_post_count` (default 3); Brian sets the actual count at draft time. Path: `content.linkedin_drafts_path`.
    - "Metrics log" — the weekly numbers entry. Path: `content.metrics_log_path` if set, else the vault root.
 
    Also check both drafts folders for notes still at `status: drafted` from prior weeks and flag them here as unpublished. Omit this section entirely when no `content` block exists.
@@ -56,7 +56,7 @@ Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week 
 
 For each meeting this week that plausibly needs preparation (client meetings, anything with an external attendee or an agenda) and has no existing prep task: create a Task row (data source `collection://{notion.tasks_db}`) with Type = Prep, Due date = the day before the meeting, Source = Planning, Engagement linked when identifiable. If more than five prep tasks would be created, list them and ask before creating.
 
-If a `content` block exists in config, also create the three standing content Tasks for the week — "Newsletter #N", "LinkedIn posts x3", "Metrics log" — each with Type = Deliverable, Source = Planning, Due date = this Friday, and the draft's vault path in the task body. Dedupe first: if an open task with the same name already exists (a carryover), roll it instead of creating a twin.
+If a `content` block exists in config, also create the three standing content Tasks for the week — "Newsletter #N", "LinkedIn posts xN" (N = `content.default_post_count`, default 3), "Metrics log" — each with Type = Deliverable, Source = Planning, Due date = this Friday, and the draft's vault path in the task body. Dedupe first: if an open task with the same name already exists (a carryover), roll it instead of creating a twin.
 
 ## Output 3: weekly email draft(s)
 

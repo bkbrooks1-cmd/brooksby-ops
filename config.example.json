@@ -1,6 +1,6 @@
 {
   "_comment": "Sanitized template showing the shape of solo-os-config.json. Onboarding writes the real file for you — you do not normally edit this by hand. No real IDs, emails, or paths here; this is the version that ships in the repo.",
-  "_version": "1.0",
+  "_version": "1.1",
 
   "user": {
     "name": "YOUR NAME",
@@ -9,7 +9,13 @@
 
   "voice": {
     "name": "YOUR FIRST NAME",
-    "style_guide_path": ""
+    "style_guide_path": "",
+    "sources": [
+      "About Me/about-me.md",
+      "About Me/voice.md",
+      "About Me/anti-ai-writing.md"
+    ],
+    "newsletter_voice_path": "About Me/newsletter-voice.md"
   },
 
   "notion": {
@@ -20,7 +26,8 @@
     "leads_db": "<leads data source id>",
     "content_db": "<content calendar data source id>",
     "agent_ideas_db": "<agent ideas data source id>",
-    "content_ideas_db": "<content ideas data source id>"
+    "content_ideas_db": "<content ideas data source id>",
+    "content_pipeline_page": "<content pipeline workflow page id, optional>"
   },
 
   "email": {
@@ -37,14 +44,31 @@
   },
 
   "_content_example": {
-    "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a local content vault: Notion owns tasks and calendar; the vault owns drafts and research. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), and the drafts/vault-health checks in friday-wrap. Omit the block entirely to run the OS without a content pipeline.",
+    "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a local content vault: Notion owns tasks and calendar; the vault owns drafts and research. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), the drafts/vault-health checks in friday-wrap, and the content-engine skills (wednesday-synthesis, draft-content, polish-and-score, mark-published, collect-metrics). Omit the block entirely to run the OS without a content pipeline.",
     "vault_root": "D:/YourVault",
     "contract_path": "D:/YourVault/CONTRACT.md",
     "ideas_path": "D:/YourVault/02-Ideas",
     "newsletter_drafts_path": "D:/YourVault/04-Drafts/Newsletters",
     "linkedin_drafts_path": "D:/YourVault/04-Drafts/LinkedIn-Posts",
-    "metrics_log_path": "D:/YourVault/05-Metrics",
-    "vault_health_checklist": "D:/YourVault/Vault-Health-Checklist.md"
+    "metrics_log_path": "D:/YourVault/02-Ideas/metrics-log.md",
+    "published_log_path": "D:/YourVault/02-Ideas/published-posts-log.md",
+    "backlog_path": "D:/YourVault/02-Ideas/content-backlog.md",
+    "theme_map_path": "D:/YourVault/02-Ideas/theme-map.md",
+    "vault_health_checklist": "D:/YourVault/Vault-Health-Checklist.md",
+    "default_post_count": 3,
+    "synthesis_lookback_days": 14,
+    "polish": {
+      "structure_humanizer_skill": "stay-human",
+      "word_humanizer_skill": "surface-humanizer",
+      "newsletter_voice_skill": "newsletter-voice",
+      "linkedin_scorer_skill": "post-scorer"
+    },
+    "metrics": {
+      "linkedin_auto_fields": ["Reactions", "Comments", "Reposts"],
+      "linkedin_manual_fields": ["Impressions", "Profile views"],
+      "substack_manual_fields": ["Opens", "Open rate", "New subscribers"],
+      "apify_linkedin_actor": ""
+    }
   },
 
   "_engagements_example": {
