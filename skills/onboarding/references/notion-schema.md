@@ -104,12 +104,12 @@ Config key: `notion.leads_db`. Title property: **Name** (title).
 
 ## Database 5 — Content Calendar
 
-Config key: `notion.content_db`. Title property: **Title** (title). This is the post pipeline **and** the published log: a post moves Idea → Drafted → Scheduled → Posted, the full draft/final copy lives in the **page body**, and analytics land in the properties once posted.
+Config key: `notion.content_db`. Title property: **Title** (title). This is the post pipeline **and** the published log: a post moves Idea → Drafted → Scheduled → Posted, or Drafted → Archived when a piece is killed rather than deferred, the full draft/final copy lives in the **page body**, and analytics land in the properties once posted.
 
 | Property | Type | Options / config |
 |---|---|---|
 | Title | title | — |
-| Status | select | Idea (gray), Drafted (yellow), Scheduled (orange), Posted (green) |
+| Status | select | Idea (gray), Drafted (yellow), Scheduled (orange), Posted (green), Archived (red) |
 | Platform | select | LinkedIn (blue), Substack (orange), Both (purple) |
 | Series | select | Standalone (gray) — users add their own series options |
 | Series week | text | e.g. "Wk 2", "PM-1" |

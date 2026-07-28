@@ -1,6 +1,6 @@
 {
   "_comment": "Sanitized template showing the shape of solo-os-config.json. Onboarding writes the real file for you — you do not normally edit this by hand. No real IDs, emails, or paths here; this is the version that ships in the repo.",
-  "_version": "1.1",
+  "_version": "1.2",
 
   "user": {
     "name": "YOUR NAME",
@@ -15,6 +15,8 @@
       "About Me/voice.md",
       "About Me/anti-ai-writing.md"
     ],
+    "_sources_note": "voice.sources is the GENERAL voice, applied to every asset. newsletter-voice.md is deliberately NOT listed here — it is a Substack-only register and would bleed into LinkedIn drafting if treated as a general source. It is reached only through newsletter_voice_path.",
+    "_newsletter_voice_note": "Substack register only. Applied by polish-and-score step 3 on newsletter issues; never on a LinkedIn post. The file is tuned across published issues, not generated — if it is missing on an instance that has published before, restore it rather than regenerating it.",
     "newsletter_voice_path": "About Me/newsletter-voice.md"
   },
 
@@ -67,7 +69,9 @@
       "linkedin_auto_fields": ["Reactions", "Comments", "Reposts"],
       "linkedin_manual_fields": ["Impressions", "Profile views"],
       "substack_manual_fields": ["Opens", "Open rate", "New subscribers"],
-      "apify_linkedin_actor": ""
+      "linkedin_profile_url": "https://www.linkedin.com/in/your-handle/",
+      "_apify_linkedin_actor_note": "Read by collect-metrics only. The account-level post-scorer skill hardcodes the same actor string at its step 2 and does not read this key — change one, change both.",
+      "apify_linkedin_actor": "apimaestro/linkedin-profile-posts"
     }
   },
 
