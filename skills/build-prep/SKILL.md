@@ -46,13 +46,20 @@ Assemble a short brief, in this order:
 
 Keep it tight — a brief, not a dossier. Write in the user's voice per `voice.style_guide_path` if set; otherwise neutral plain-professional. No buzzwords, no em dashes.
 
-## Step 5 — Show, then offer to save
+## Step 5 — Save the brief into the prep task
 
-Show the brief in chat first. Then offer to keep it, on confirmation:
+**The prep task is the brief.** Its page body holds the full text. There is no separate prep page and no separate prep database. One object per meeting, which is what lets capture link the plan to the record afterward.
 
-- **Notion** — a prep page under the meeting's Meetings page (or the home page if none exists yet).
-- **Word copy** — for a client-facing meeting whose engagement has a `project_root` in config, a `.docx` in `<project_root>/deliverables/` (use the docx skill).
-- **Mark prep done** — if a Prep task exists for this meeting, offer to mark it Done.
+Show the brief in chat first. Then, on confirmation:
+
+1. **Find or create the prep task** in the Tasks data source `collection://{notion.tasks_db}`.
+   - Look for an existing open task with `Type = Prep` whose name, engagement, or due date matches this meeting. Reuse it. Do not create a second one.
+   - If none exists, create it: **Name** = `Prep: <meeting name> (<Day M/D H:MM>)`, **Type** = Prep, **Source** = Planning, **Status** = To do, **Due date** = the day before the meeting, **Engagement** = the engagement from step 2.
+2. **Write the brief into that task's page body.** Replace the body, do not append, so a rebuilt brief never stacks on top of a stale one. Open with a dateline: `Built <YYYY-MM-DD>`, plus a reschedule note if the meeting moved.
+3. **Link to the meeting page** through the `Meeting` relation if a Meetings page already exists. Usually it does not yet, because the meeting has not happened. Capture creates the page afterward and links back then (capture skill, step 5d).
+4. **One brief per meeting.** If more than one prep artifact exists for the same meeting — a second Prep task, or a standalone prep page left behind by an earlier build or a reschedule — keep the newest and name the stale ones so the user can delete them. Never leave two prep documents for one meeting.
+
+**No Word copy by default.** Generate a `.docx` only when the user asks for one to send to somebody. Use the docx skill, and save it to `<project_root>/deliverables/` when the engagement has a `project_root`.
 
 Create nothing without a yes.
 
@@ -60,4 +67,5 @@ Create nothing without a yes.
 
 - Drafts only for anything leaving the building; the user sends. Accounts in `firewall.no_connector_accounts` are never connected — prep their meetings from the user's own records, but send nothing to those accounts.
 - Never invent status, action items, or commitments. If the context is thin, say so and prep from what exists.
-- Do not create or close tasks beyond the optional prep-task mark in Step 5, and only on confirmation.
+- The brief lives in the prep task body. Never create a standalone prep page.
+- Do not create or close tasks beyond the prep task in Step 5, and only on confirmation.

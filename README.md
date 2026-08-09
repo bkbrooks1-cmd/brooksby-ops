@@ -4,7 +4,7 @@ The Solopreneur OS, packaged as a Cowork plugin. Config-driven agents for a solo
 
 The skills carry the logic. Your data lives in one config file. To run this for a different person, you swap the config, not the skills.
 
-**Version 0.11.1** — twelve skills. See `## Status` for what changed.
+**Version 0.11.2** — twelve skills. See `## Status` for what changed.
 
 ## What's in here
 
@@ -90,6 +90,17 @@ Both are account-level skills the content chain calls, and neither can be patche
 - **`post-scorer`** is the LinkedIn scorer. It hardcodes its Apify actor at step 2 and does not read `content.metrics.apify_linkedin_actor`. Change that config key and the scorer keeps using its literal until someone edits the skill. The config file carries a note on the key saying so.
 
 ## Status
+
+**v0.11.2 (2026-08-05)** — prep briefs move into the prep task, and capture links them back.
+
+The prep brief used to land as a standalone Notion page, separate from the Prep task that tracked it, and nothing ever connected either one to the meeting page capture wrote afterward. Three artifacts per meeting, none of them linked. Rescheduling made it worse: a rebuilt brief left the old page sitting there, so two prep documents claimed the same meeting.
+
+- `build-prep` step 5 rewritten. The prep task **is** the brief: the full text goes in the task's page body, replacing rather than appending so a rebuild never stacks on a stale draft. No standalone prep page, ever. No Word copy unless Brian asks for one to send to someone.
+- `capture` gains **step 5d**. Before proposing a meeting page it looks for a matching Prep task, links it via the `Meeting` relation, sets the engagement, marks it Done, and prepends a `**Prep for this meeting:**` line above the Summary. The relation is bidirectional, so the plan and the record each point at the other.
+- Both skills now name stale duplicate prep artifacts in the disposition instead of leaving them to rot.
+- New hard rule in capture: never leave a prep artifact unlinked when its meeting page exists.
+
+No schema change. `Tasks.Type = Prep` and `Tasks.Meeting` already existed; they were just never wired together.
 
 **v0.11.1 (2026-07-28)** — fix release off the nine-point end-to-end test. Seven defects closed:
 

@@ -79,6 +79,28 @@ If a meeting surfaced an insight worth teaching publicly — a pattern, lesson, 
 
 The vault owns content; Notion owns tasks. Do not create a Task or Content Ideas row for the note — the Wednesday synthesis session picks it up from the vault. Include proposed idea notes in the disposition list (step 7) and write them on the same confirmation.
 
+### 5d. Link the prep back to the meeting
+
+A prep brief is written before the meeting exists, so nothing has connected the two yet. Capture is where that closes.
+
+Search the Tasks data source `collection://{notion.tasks_db}` for a prep artifact for this same meeting: a task with `Type = Prep` whose name, engagement, or due date lands within a day or two of the meeting. Also check for a standalone prep page in the workspace with a matching title, which is the older shape and should not exist anymore.
+
+If one is found, propose to:
+
+- set its `Meeting` relation to the meeting page from step 5
+- set its `Engagement` to the same engagement
+- mark it **Done**
+
+and prepend one line to the top of the minutes body, above the Summary:
+
+```
+**Prep for this meeting:** [<prep task name>](<prep task url>)
+```
+
+That single link is what makes the plan and the record readable side by side months later. The relation is bidirectional, so the meeting page shows the prep and the prep task shows the meeting.
+
+If more than one prep artifact matches, link the newest and name the others in the disposition so the user can delete them. If none is found, skip this step silently and never create a prep task at capture time.
+
 ### 6. Extract action items into Tasks (proposed, not yet created)
 
 For each action item, prepare a row for the Tasks data source `collection://{notion.tasks_db}`:
@@ -92,11 +114,11 @@ For each action item, prepare a row for the Tasks data source `collection://{not
 
 ### 7. Disposition
 
-Show the user everything proposed before writing anything: the meeting pages to create, and under each, the action-item Tasks and any idea notes (step 5c). Then:
+Show the user everything proposed before writing anything: the meeting pages to create, and under each, the prep link (step 5d), the action-item Tasks, and any idea notes (step 5c). Then:
 
 - Create only on confirmation. Offer "yes to all" or let the user pick per meeting.
-- After creating each Meeting page, link its action-item Tasks via the `Meeting` / `Action items` relation.
-- Report what was created with links.
+- After creating each Meeting page, link its action-item Tasks via the `Meeting` / `Action items` relation, and link the prep task from step 5d.
+- Report what was created with links, and name any stale prep artifacts the user should delete.
 
 ## Hard rules
 
@@ -106,3 +128,4 @@ Show the user everything proposed before writing anything: the meeting pages to 
 - Idea notes (step 5c) are always sanitized and never come from firewalled engagements. When in doubt about whether a detail is client-confidential, leave it out.
 - If Granola is unavailable mid-run, stop and say so; do not fabricate minutes.
 - Never edit or re-summarize a meeting page that already exists unless the user asks.
+- Never leave a prep artifact unlinked when its meeting page exists. Step 5d is not optional when a match is found.
