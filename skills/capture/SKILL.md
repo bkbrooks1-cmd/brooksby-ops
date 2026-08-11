@@ -14,7 +14,9 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before capturing."
 
-Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`, `firewall.no_connector_accounts`.
+Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`, `notion.internal_engagements`, `firewall.no_connector_accounts`.
+
+Every meeting page, action item, and follow-up task this skill creates carries an engagement. The rule and the four internal buckets live in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md` — read it before step 4.
 
 Optional: `capture.lookback` (one of `this_week`, `last_week`, `last_30_days`; default `last_week`). Also optional: a `content` block (see config.example.json) — enables idea notes to the content vault (step 5c). If absent, skip step 5c silently.
 
@@ -43,7 +45,9 @@ For each uncaptured meeting, call Granola `get_meetings` (by id) for the AI summ
 
 ### 4. Infer the engagement
 
-Match the meeting to an active row in the Engagements data source `collection://{notion.engagements_db}` using attendees and title. If one clearly matches, link it. If it is ambiguous or nothing matches, ask the user which engagement (or none) before linking — do not guess.
+Match the meeting to an active row in the Engagements data source `collection://{notion.engagements_db}` using attendees and title. If one clearly matches, link it.
+
+If it is ambiguous or no client matches, ask the user which engagement before linking — offering the four internal buckets alongside the client list. Do not guess, and do not offer "none." An internal meeting is Business Development when a named opportunity sits behind it and Networking when it is relationship maintenance. This choice propagates into three records: the meeting page (step 5), its action-item tasks (step 6), and the prep task linked back in step 5d. A null here defects all three.
 
 ### 5. Build the Meeting page (proposed, not yet created)
 
@@ -53,7 +57,7 @@ For each uncaptured meeting, prepare a page for the Meetings data source with:
 - **Date** = meeting date
 - **Attendees** = participant names (text)
 - **Granola link** = the meeting's Granola URL (this is also the dedupe key and the path to the full transcript)
-- **Engagement** = inferred relation (or as confirmed in step 4)
+- **Engagement** = inferred relation (or as confirmed in step 4) — always set, client row or internal bucket
 - **Body (minutes)**, in this order:
   - **Summary** — 2 to 4 sentences from the Granola AI summary.
   - **Decisions** — bullets, only if any were made.
@@ -109,7 +113,7 @@ For each action item, prepare a row for the Tasks data source `collection://{not
 - **Type** = Follow-up (or Deliverable if it is a work product)
 - **Source** = Meeting
 - **Due date** = if a date was stated or clearly implied; otherwise leave blank
-- **Engagement** = same engagement linked to the meeting
+- **Engagement** = same engagement linked to the meeting. Never blank — if the meeting resolved to an internal bucket, its action items inherit that bucket. An action item that is plainly a different kind of work than the meeting (an invoicing follow-through off a networking call, say) routes on its own merits per the routing reference, and the client-invoicing rule applies.
 - **Meeting** = relation to the meeting page created in step 5
 
 ### 7. Disposition
@@ -124,6 +128,7 @@ Show the user everything proposed before writing anything: the meeting pages to 
 
 - Create nothing without confirmation. Propose, then write on a yes.
 - Never create a duplicate Meeting page — always dedupe in step 2 first.
+- Never write a null Engagement on a meeting page, an action item, or a prep task. Every one of them resolves to a client row or an internal bucket.
 - Drafts only for anything leaving the building; the user sends. Accounts listed in `firewall.no_connector_accounts` are never connected — capture their meeting notes into Notion as normal (Granola is the user's own record), but never send anything to those accounts.
 - Idea notes (step 5c) are always sanitized and never come from firewalled engagements. When in doubt about whether a detail is client-confidential, leave it out.
 - If Granola is unavailable mid-run, stop and say so; do not fabricate minutes.

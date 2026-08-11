@@ -4,7 +4,7 @@ The Solopreneur OS, packaged as a Cowork plugin. Config-driven agents for a solo
 
 The skills carry the logic. Your data lives in one config file. To run this for a different person, you swap the config, not the skills.
 
-**Version 0.11.2** — twelve skills. See `## Status` for what changed.
+**Version 0.11.3** — thirteen skills. See `## Status` for what changed.
 
 ## What's in here
 
@@ -18,6 +18,7 @@ The skills carry the logic. Your data lives in one config file. To run this for 
 | `capture` | Turns recent Granola meetings into Notion meeting pages with minutes, action items, and status, plus a Word copy to the engagement folder for client-facing meetings and a sanitized idea note when a meeting surfaces a teachable insight. Runs standalone and as a step inside the check-in and planner. Requires Granola. |
 | `friday-wrap` | Closes out the week: confirms what got done, rolls overdue open work forward as carryover, writes a week-wrap page. With a content vault configured, unpublished drafts roll as carryover and the vault-health checklist runs with the wrap. Say "weekly wrap". |
 | `build-prep` | On-demand prep brief for a named or next meeting: last-meeting status, open items owed, recent email, and agenda in one place. Say "build the prep". |
+| `render-daybook` | One-page snapshot of what is true right now: today's schedule, due and waiting work, work by engagement, the deliverable radar, and optional revenue. Reads only; publishes a Cowork artifact. Say "refresh my daybook". |
 
 ### Content engine
 
@@ -44,6 +45,9 @@ brooksby-ops/
     capture/SKILL.md
     friday-wrap/SKILL.md
     build-prep/SKILL.md
+    render-daybook/
+      SKILL.md
+      references/connector-health.md         # connector probes and failure wording
     monday-planner/
       SKILL.md
       references/weekly-email.md             # generic vs per-engagement email setup
@@ -53,6 +57,8 @@ brooksby-ops/
     surface-humanizer/SKILL.md
     mark-published/SKILL.md
     collect-metrics/SKILL.md
+  references/
+    engagement-routing.md                    # every task gets an engagement; the four internal buckets
   templates/
     weekly_email_TEMPLATE.html               # generic weekly email, copy per engagement
   config.example.json                        # sanitized template (onboarding writes the real one)
@@ -90,6 +96,25 @@ Both are account-level skills the content chain calls, and neither can be patche
 - **`post-scorer`** is the LinkedIn scorer. It hardcodes its Apify actor at step 2 and does not read `content.metrics.apify_linkedin_actor`. Change that config key and the scorer keeps using its literal until someone edits the skill. The config file carries a note on the key saying so.
 
 ## Status
+
+**v0.11.3 (2026-08-11)** — every task belongs to an engagement.
+
+Nothing stopped a skill writing a task with a blank Engagement, so non-client work — content, admin, prospecting, coffee — piled up untagged. The work-by-engagement tile filled with an Unassigned group and the client rollups were incomplete.
+
+Engagements now holds four internal buckets alongside the client rows: **Marketing Content**, **Business Admin**, **Business Development**, and **Networking**. They carry a title and an icon and nothing else — no Status, Rate, Billing model, or Start date — which is exactly what keeps them out of the `Status = Active` views and revenue reporting.
+
+- New shared reference `references/engagement-routing.md` holds the convention, the bucket boundaries, and the ask-don't-guess rule. `daily-checkin`, `monday-planner`, `build-prep`, and `capture` all point at it rather than restating it.
+- `build-prep` and `capture` drop the "or none" escape when asking which engagement, and offer the four buckets alongside the client list. In capture a null propagated into three records, so this was the expensive one.
+- `monday-planner` no longer leaves prep-task engagements blank when a client is not identifiable, and the standing content deliverables now land on Marketing Content.
+- `render-daybook` orders client groups above internal buckets so a content group cannot outrank a client due the same day. The Unassigned group now reads as a defect, not a category.
+- `onboarding` gains step 2.4: it seeds the four buckets on a fresh install and writes their page IDs to config, so a new user cannot create orphans on day one. Verification adds a null-Engagement query that must return zero.
+- Config schema **1.3**: new `notion.internal_engagements` block. Required key for the four task-creating skills; optional for the Daybook, which degrades to due-date-only ordering without it.
+
+Routing rule worth knowing: **client invoicing follow-through links to the client engagement, not Business Admin.** Chasing an invoice is client work. Business Admin holds money work with no client behind it — taxes, subscriptions, the accounting tool.
+
+Also in this release: `render-daybook` finally appears in the skill table and layout above. It shipped earlier and was never documented here.
+
+Not in this release: the recurring `Content:` cadence tasks are still seeded by hand. Folding that into `monday-planner` is the stated intent and is its own change.
 
 **v0.11.2 (2026-08-05)** — prep briefs move into the prep task, and capture links them back.
 

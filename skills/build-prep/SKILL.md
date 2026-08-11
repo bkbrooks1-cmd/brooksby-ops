@@ -14,7 +14,9 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before building prep."
 
-Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`. Used if present: `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
+Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`, `notion.internal_engagements`. Used if present: `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
+
+The prep task this skill creates always carries an engagement. The rule and the four internal buckets live in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md`.
 
 ## Step 1 — Identify the meeting
 
@@ -22,7 +24,9 @@ If the user named a meeting or client, resolve it. Otherwise pull the **next upc
 
 ## Step 2 — Identify the engagement
 
-Match the meeting to a row in the Engagements data source `collection://{notion.engagements_db}` by attendees and title. If it is ambiguous or matches nothing, ask which engagement (or none — some meetings are not engagement work).
+Match the meeting to a row in the Engagements data source `collection://{notion.engagements_db}` by attendees and title.
+
+If it is ambiguous or matches nothing, ask which engagement — and offer the four internal buckets alongside the client list, because every meeting resolves to one of them. A non-client meeting is Business Development when a named opportunity sits behind it and Networking when it is relationship maintenance. "None" is not an option; a null engagement here propagates into the prep task and, later, into the meeting page.
 
 ## Step 3 — Gather context
 
@@ -54,7 +58,7 @@ Show the brief in chat first. Then, on confirmation:
 
 1. **Find or create the prep task** in the Tasks data source `collection://{notion.tasks_db}`.
    - Look for an existing open task with `Type = Prep` whose name, engagement, or due date matches this meeting. Reuse it. Do not create a second one.
-   - If none exists, create it: **Name** = `Prep: <meeting name> (<Day M/D H:MM>)`, **Type** = Prep, **Source** = Planning, **Status** = To do, **Due date** = the day before the meeting, **Engagement** = the engagement from step 2.
+   - If none exists, create it: **Name** = `Prep: <meeting name> (<Day M/D H:MM>)`, **Type** = Prep, **Source** = Planning, **Status** = To do, **Due date** = the day before the meeting, **Engagement** = the engagement from step 2 — client row or internal bucket, never blank.
 2. **Write the brief into that task's page body.** Replace the body, do not append, so a rebuilt brief never stacks on top of a stale one. Open with a dateline: `Built <YYYY-MM-DD>`, plus a reschedule note if the meeting moved.
 3. **Link to the meeting page** through the `Meeting` relation if a Meetings page already exists. Usually it does not yet, because the meeting has not happened. Capture creates the page afterward and links back then (capture skill, step 5d).
 4. **One brief per meeting.** If more than one prep artifact exists for the same meeting — a second Prep task, or a standalone prep page left behind by an earlier build or a reschedule — keep the newest and name the stale ones so the user can delete them. Never leave two prep documents for one meeting.

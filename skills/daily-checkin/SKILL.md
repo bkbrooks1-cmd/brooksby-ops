@@ -14,11 +14,17 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the check-in."
 
-Required keys: `notion.tasks_db`, `notion.leads_db`, `notion.agent_ideas_db`, `notion.meetings_db`, `notion.engagements_db`, `email.monitored_addresses`, `firewall.no_connector_accounts`.
+Required keys: `notion.tasks_db`, `notion.leads_db`, `notion.agent_ideas_db`, `notion.meetings_db`, `notion.engagements_db`, `notion.internal_engagements`, `email.monitored_addresses`, `firewall.no_connector_accounts`.
+
+## Engagement routing
+
+Every task this skill proposes carries an engagement. Never propose or create a task with a null Engagement. The rule, the four internal buckets, and how to pick between them live in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md` — read it before proposing tasks.
 
 ## Sources to read
 
 Flag any source that fails; never silently omit it.
+
+0. **Connector health** — run the probes in the render-daybook skill's `references/connector-health.md` first. Failures print as the first line of the today view, in the three-fact form that file specifies. Healthy connectors get no line. A connector that returns an empty result without throwing is the failure this catches.
 
 1. **Google Calendar** (connector): today and tomorrow, all calendars.
 2. **Gmail** (connector): since the last check-in (default: last 24 hours). Unread or flagged threads and direct asks, including mail to any address in `email.monitored_addresses` (all forward here).
@@ -31,13 +37,13 @@ Keep it tight. Four blocks, skip any that are empty:
 
 1. **Today's meetings** — time, title, prep status. Tomorrow's meetings that need prep today get one line each.
 2. **Due and overdue** — tasks due today, then overdue, each with engagement. Overdue items get a suggested move: do today, reschedule (propose a date), or flag for Friday wrap.
-3. **From email** — new items that look like work. For each, propose a task (name, due date, engagement). Create rows only after the user confirms. Mark Source = Email.
+3. **From email** — new items that look like work. For each, propose a task (name, due date, engagement). The engagement is not optional: match a client row first, and when nothing matches, route to an internal bucket per the routing reference. Where two buckets both fit, show both and ask. Create rows only after the user confirms. Mark Source = Email.
 4. **Deliverables** — anything produced in the current session that maps to an open task; offer to mark it Done.
 5. **Meetings to capture** — new Granola meetings not yet in the Meetings DB (`collection://{notion.meetings_db}`). Run the capture routine (canonical steps live in the capture skill): for each, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Skip this block silently if Granola is not connected or nothing is new.
 
 ## Update rules
 
-- Create tasks only with confirmation. Batch the proposals so the user can say "yes to all" or pick.
+- Create tasks only with confirmation. Batch the proposals so the user can say "yes to all" or pick. Every proposal shows its engagement; a proposal without one is not ready to show.
 - Never move a due date or close a task Claude did not create without an explicit yes.
 - "Posted", "done", "sent" from the user about a named item = mark the matching task Done without re-asking.
 - New leads spotted in email: offer a row in Leads (`collection://{notion.leads_db}`) with Stage = Lead, Source = Email inquiry, and a drafted next action.
@@ -46,4 +52,4 @@ Keep it tight. Four blocks, skip any that are empty:
 ## Hard rules
 
 - Drafts only for anything leaving the building; the user sends. Accounts listed in `firewall.no_connector_accounts` are never connected.
-- A failed source means a smaller view, not a silent one: open with "Gmail unavailable" (or whichever) and continue.
+- A failed source means a smaller view, not a silent one: name the connector, how long it has been silent, and the fix, then continue. Canonical wording in `references/connector-health.md`.

@@ -1,6 +1,6 @@
 {
   "_comment": "Sanitized template showing the shape of solo-os-config.json. Onboarding writes the real file for you — you do not normally edit this by hand. No real IDs, emails, or paths here; this is the version that ships in the repo.",
-  "_version": "1.2",
+  "_version": "1.3",
 
   "user": {
     "name": "YOUR NAME",
@@ -29,7 +29,15 @@
     "content_db": "<content calendar data source id>",
     "agent_ideas_db": "<agent ideas data source id>",
     "content_ideas_db": "<content ideas data source id>",
-    "content_pipeline_page": "<content pipeline workflow page id, optional>"
+    "content_pipeline_page": "<content pipeline workflow page id, optional>",
+
+    "internal_engagements": {
+      "_comment": "Non-client buckets in the Engagements DB. Every task gets an Engagement; work that isn't client work routes here. These rows carry no Status/Rate/Billing model, which is what keeps them out of revenue reporting and the Status=Active views. Onboarding creates the four rows and populates these IDs — you do not fill them in by hand. Routing rules: references/engagement-routing.md.",
+      "marketing_content": "",
+      "business_admin": "",
+      "business_development": "",
+      "networking": ""
+    }
   },
 
   "email": {

@@ -86,6 +86,27 @@ Capture as `CONTENT_IDEAS_ID` → config `notion.content_ideas_db`. Auto-creates
 
 Known limitation: Notion's `place` property type cannot be created via DDL, so Engagements `Place` is provisioned as text. If the user wants a true location field, they convert it in the Notion UI after setup. Note this and move on — it is not setup-blocking.
 
+## Step 2.4 — Seed the four internal engagement buckets
+
+Every task in the OS belongs to an engagement. Client work links to a client row; everything else links to one of four internal buckets. Seed them now, or the user creates orphan tasks on day one. The full convention is at `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md`.
+
+Create four pages in the Engagements data source (`ENG_ID`), one per bucket:
+
+| Client (title) | Icon | Config key |
+|---|---|---|
+| Marketing Content | 📣 | `notion.internal_engagements.marketing_content` |
+| Business Admin | 🧾 | `notion.internal_engagements.business_admin` |
+| Business Development | 🎯 | `notion.internal_engagements.business_development` |
+| Networking | 🤝 | `notion.internal_engagements.networking` |
+
+Set the title and the icon. **Leave Status, Rate, Billing model, and Start date empty, and leave `Weekly report` unchecked.** Those four fields are what the `Status = Active` views and the revenue reporting key off; filling any of them pulls an internal bucket into client reporting.
+
+Write this note into each page's body so a later skill — or a later you — does not helpfully fill them in:
+
+> Internal engagement bucket, not a client. Status, Rate, Billing model, and Start date are intentionally empty: those fields drive the Status = Active views and revenue reporting, and an internal bucket must stay out of both. Do not fill them in.
+
+Capture each returned page ID and write it into `notion.internal_engagements` in Step 4.
+
 ## Step 2.5 — Build the home dashboard
 
 Give the user a working cockpit on the home page instead of bare databases. Use Notion `create-view` with `parent_page_id` = the home page ID and `data_source_id` = the relevant captured ID. Each call appends a linked view block to the home page. Create these seven, in order:
@@ -113,7 +134,7 @@ Gather the remaining values conversationally and assemble the full config:
 
 ## Step 4 — Write the config file
 
-Write `solo-os-config.json` to the project folder confirmed in Step 1 with `_version` `"1.0"`, the captured Notion IDs, the home page ID, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
+Write `solo-os-config.json` to the project folder confirmed in Step 1 with `_version` `"1.3"`, the captured Notion IDs, the home page ID, the four internal-bucket page IDs from Step 2.4 under `notion.internal_engagements`, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
 
 Never write real IDs or emails into `config.example.json` — that file stays sanitized.
 
@@ -124,8 +145,10 @@ Do not declare success until these pass:
 1. For each of the seven config IDs, call Notion `fetch` and confirm it resolves and the title matches (Tasks, Meetings, Engagements, Leads & Opportunities, Content Calendar, Agent Ideas, Content Ideas).
 2. Confirm the relations resolved with the right names: Tasks has `Engagement` and `Meeting`; Engagements has `Tasks`, `Meetings`, and `Source lead`; Meetings has `Action items`; Leads has `Converted to`; Content Ideas has `Calendar post` and Content Calendar has `Idea source`.
 3. Confirm the home page shows the seven dashboard views.
-4. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
-5. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
+4. Confirm all four IDs in `notion.internal_engagements` resolve, their titles match (Marketing Content, Business Admin, Business Development, Networking), and each has Status, Rate, Billing model, and Start date empty with `Weekly report` unchecked. A bucket carrying a Status is a failure — it will show up in client reporting.
+5. Query the Tasks data source for open tasks with a null Engagement. Expect zero rows. On a fresh install this passes trivially; run it anyway, because it is the check the user will re-run later and it should be established as normal from day one.
+6. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
+7. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
 
 Report each check as pass or fail. If anything fails, name it and stop there — a half-built OS that reports its gap beats a silent one.
 

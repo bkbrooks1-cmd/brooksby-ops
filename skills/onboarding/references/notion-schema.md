@@ -82,6 +82,21 @@ Config key: `notion.engagements_db`. Title property: **Client** (title).
 | Meetings | relation → Meetings | pass 2 (mirror; may be auto-created) |
 | Source lead | relation → Leads & Opportunities | pass 2 (mirror; may be auto-created) |
 
+### The internal engagement buckets
+
+Engagements holds more than clients. **Every task in the OS belongs to an engagement** — a null Engagement is a defect, not a state — so non-client work needs somewhere to live. Four rows in this same table carry it:
+
+| Client (title) | Icon | Config key | Holds |
+|---|---|---|---|
+| Marketing Content | 📣 | `notion.internal_engagements.marketing_content` | LinkedIn posts, newsletter issues, the Wednesday engine, metrics logging, cadence seeding |
+| Business Admin | 🧾 | `notion.internal_engagements.business_admin` | Internal ops: tool and workspace cleanup, system maintenance, taxes, subscriptions |
+| Business Development | 🎯 | `notion.internal_engagements.business_development` | Prospect and referral follow-ups with a named opportunity but no engagement yet |
+| Networking | 🤝 | `notion.internal_engagements.networking` | Relationship maintenance with no specific opportunity |
+
+These rows carry **only a title and an icon**. Status, Rate, Billing model, and Start date stay empty and `Weekly report` stays unchecked. That emptiness is load-bearing: the `Status = Active` views and the revenue reporting key off those fields, and filling any of them drags an internal bucket into client reporting. Each page body carries a note saying so.
+
+Onboarding creates them in Step 2.4 and writes their page IDs into config. Full routing rules — including that client invoicing follow-through links to the *client* engagement, not Business Admin — are in `references/engagement-routing.md` at the plugin root.
+
 ---
 
 ## Database 4 — Leads & Opportunities
@@ -174,7 +189,12 @@ Note: the Platform and Monetization options are sensible starting defaults; a ne
 
 1. Write each new data-source ID into `solo-os-config.json` under the matching `notion.*` key.
 2. Set `notion.home_page` to the parent page the databases were created under.
-3. Run the verification pass: confirm each of the seven IDs resolves and returns its expected properties, then run a daily check-in end to end against the empty workspace.
+3. Seed the four internal engagement buckets in Engagements and write their page IDs into `notion.internal_engagements`.
+4. Run the verification pass:
+   - each of the seven data-source IDs resolves and returns its expected properties;
+   - all four `notion.internal_engagements` IDs resolve, titles match, and each has Status, Rate, Billing model, and Start date empty with `Weekly report` unchecked;
+   - a query for open Tasks with a null Engagement returns zero rows;
+   - a daily check-in runs end to end against the empty workspace.
 
 ## Instance-specific values to genericize in the shipped template
 
