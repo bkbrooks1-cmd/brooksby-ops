@@ -30,7 +30,7 @@ Used if present: `content.synthesis_lookback_days` (default 14), `notion.content
 Three newsletter angles. For each:
 
 - **The core argument** — the thesis in a sentence or two, in Brian's register (operator, not marketer).
-- **Supporting material** — which specific clips and idea notes feed it (name the notes), and how deep the cluster is.
+- **Supporting material** — which specific clips and idea notes feed it, named as folder-qualified wikilinks (`[[01-Clips/LinkedIn/Todd Coffee - Weve always done it this way]]`), not as bare titles or prose descriptions. This list is the angle's provenance and it carries forward into the draft, so it has to be link-shaped from the moment it is proposed. Also say how deep the cluster is.
 - **Derived posts** — how 2–3 LinkedIn posts would come off it (e.g. story / framework / contrarian), so Brian sees the week's full yield.
 - **Series fit** — which series it belongs to (Outgrown / PM Track / List of Demands / Standalone) and how it fits the theme map's forward slots.
 
@@ -41,14 +41,16 @@ Three newsletter angles. For each:
 When Brian chooses one:
 
 1. **Mark the idea note** `status: active` and link the supporting cluster (wikilinks to the feeding clips and ideas), under the output contract.
-2. **Update the theme map** (`content.theme_map_path`): slot the chosen theme into the current week, carry the two unpicked angles forward as banked angles, and move the chosen theme out of "forward slots" into recent/used.
-3. **Mirror to Notion Content Ideas** (`collection://{notion.content_ideas_db}`), if configured: set the chosen idea's row `Status = Drafting` (or `Next`), so the Notion backlog reflects reality. Propose before writing.
-4. Hand off: the next step is `draft-content` ("draft issue #N on [the chosen angle]").
+2. **Record the provenance so `draft-content` inherits it.** Write the chosen angle's supporting cluster into the idea note's frontmatter as a `sources:` list of folder-qualified wikilinks — the same links from "Supporting material" above. This is the handoff: `draft-content` reads `sources:` and carries it into the draft. An angle handed off without a `sources:` list is an incomplete handoff, even when the cluster was named in chat. If an angle genuinely came from Brian's head with no feeding clip, write `sources: []` rather than omitting the key, so "no source" is distinguishable from "never recorded."
+3. **Update the theme map** (`content.theme_map_path`): slot the chosen theme into the current week, carry the two unpicked angles forward as banked angles, and move the chosen theme out of "forward slots" into recent/used.
+4. **Mirror to Notion Content Ideas** (`collection://{notion.content_ideas_db}`), if configured: set the chosen idea's row `Status = Drafting` (or `Next`), so the Notion backlog reflects reality. Propose before writing.
+5. Hand off: the next step is `draft-content` ("draft issue #N on [the chosen angle]").
 
 ## Hard rules
 
 - **Never pick the angle.** Rank and recommend; Brian decides.
 - **Never pitch a rerun as new.** Check the theme map's "already covered" list and the published log first.
+- **Never name a source without linking it.** Every clip or idea cited as supporting material is a wikilink, in the proposal and in the `sources:` frontmatter. Provenance that only exists in the chat transcript is lost the moment the session ends — that is how the vault ended up with 43 clips and zero backlinks.
 - **Borrow ideas with attribution, never prose.** If an angle builds on someone else's post, credit them; never absorb their sentences.
 - **Sanitize.** No client names, figures, or confidential detail — the vault is public-facing raw material. OFP never feeds content.
 - Propose Notion/theme-map writes before making them.

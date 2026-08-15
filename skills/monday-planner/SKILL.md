@@ -14,7 +14,9 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the planner."
 
-Required keys: `notion.home_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `notion.engagements_db`, `notion.internal_engagements`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
+Required keys: `notion.week_plans_page`, `notion.tasks_db`, `notion.leads_db`, `notion.meetings_db`, `notion.engagements_db`, `notion.internal_engagements`, `email.monitored_addresses`, `voice.style_guide_path`, `firewall.no_connector_accounts`.
+
+`notion.week_plans_page` is where the finished plan lands. It is the same page `friday-wrap` writes wraps to, so plans and wraps sit together in date order. If that key is absent, fall back to `notion.home_page` and say so in the output.
 
 Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables and the roadmap slot (section 6 below); `content.theme_map_path` and `content.default_post_count` are used if set. If absent, skip everything content-related — no error, no mention.
 
@@ -40,7 +42,7 @@ If a project folder is mounted in the session, also scan active planning documen
 
 ## Output 1: the week plan page in Notion
 
-Create a sub-page of the home page (page_id `{notion.home_page}`), titled "Week plan — YYYY-MM-DD" (the Monday date). Structure, in order:
+Create a sub-page of the Weekly Plans and wraps page (page_id `{notion.week_plans_page}`), titled "Week plan — YYYY-MM-DD" (the Monday date). Never create it under `notion.home_page` — the plan belongs alongside the week wraps, not at the root. Structure, in order:
 
 1. **Sources missed** — only if a source failed. One line naming the source and what is therefore not covered.
 2. **Week at a glance** — meetings by day, each with: time, title, engagement (if known), and prep status (prep task exists / done / none needed).

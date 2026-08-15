@@ -64,6 +64,64 @@ Active filters and revenue reporting key off; filling them in pulls an internal
 bucket into client reporting. Each bucket's page body carries a note saying so —
 leave it there.
 
+## The verification queries
+
+Three checks. Run all three — each one passes while the others fail.
+
+### 1 and 2 — null engagements
+
+Capture writes an engagement to three record types, so checking Tasks alone
+passes while meeting pages sit orphaned. Check both.
+
+Open tasks with no engagement — expect zero:
+
+```sql
+SELECT Name, Status, Type FROM "collection://{notion.tasks_db}"
+WHERE (Status IS NULL OR Status != 'Done')
+  AND (Engagement IS NULL OR Engagement = '' OR Engagement = '[]')
+```
+
+Meeting pages with no engagement — expect zero. Meetings have no Status, so
+there is no "closed" state to exclude; every row counts:
+
+```sql
+SELECT Name, "date:Date:start" FROM "collection://{notion.meetings_db}"
+WHERE Engagement IS NULL OR Engagement = '' OR Engagement = '[]'
+```
+
+A hit on the second query with a clean first query is the signature of a meeting
+captured before the routing rule was live, or a capture run that skipped step 4.
+
+### 3 — duplicate meeting pages
+
+Capture's step 2 dedupes on the Granola meeting id inside `Granola link`. Nothing
+in the OS ever checks whether that dedupe actually held. This is that check —
+expect zero rows:
+
+```sql
+SELECT "Granola link" AS G, COUNT(*) AS copies,
+       GROUP_CONCAT(Name, ' | ') AS names
+FROM "collection://{notion.meetings_db}"
+WHERE G IS NOT NULL AND G != ''
+GROUP BY G HAVING copies > 1
+```
+
+Group on the link, not the title. A failed dedupe re-summarizes the meeting from
+scratch, so the two copies usually carry **different titles for the same call** —
+"Weekly Connect - 2026-07-20" and "1:1 Jennifer — video transcription review" were
+one meeting. Matching on name or date finds none of them.
+
+Two things to know before deleting anything:
+
+- **Date-scope the query to nothing.** Scan the whole table. On 2026-08-11 a
+  7/27–7/28 window found three duplicates from a run that had actually produced
+  seven, and missed two older incidents entirely.
+- **The empty copy is usually the duplicate, but not always.** The keeper is
+  normally the one holding `Action items`. When *both* copies have action items,
+  or a prep task's `Meeting` relation points at the second copy, deleting either
+  one loses linked records — surface both and let the user decide. Never
+  bulk-delete on the emptiness heuristic alone.
+
 ## Config missing
 
 If `notion.internal_engagements` is absent or its values are empty, say so and

@@ -193,7 +193,7 @@ Note: the Platform and Monetization options are sensible starting defaults; a ne
 4. Run the verification pass:
    - each of the seven data-source IDs resolves and returns its expected properties;
    - all four `notion.internal_engagements` IDs resolve, titles match, and each has Status, Rate, Billing model, and Start date empty with `Weekly report` unchecked;
-   - a query for open Tasks with a null Engagement returns zero rows;
+   - all three queries in `references/engagement-routing.md` return zero rows — open Tasks with a null Engagement, Meeting pages with a null Engagement, and duplicate meeting pages grouped by `Granola link`. Any one of them passes while the other two fail;
    - a daily check-in runs end to end against the empty workspace.
 
 ## Instance-specific values to genericize in the shipped template

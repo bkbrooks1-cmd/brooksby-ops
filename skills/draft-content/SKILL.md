@@ -41,12 +41,24 @@ Title is sentence case, spelled out, no slug. Variant descriptor says what makes
 
 Trigger: "draft issue #N on [angle]".
 
-1. **Draft the issue** into `content.newsletter_drafts_path` as `Issue 0N - <Title>.md`, from the active idea note (marked by synthesis) and its linked clips. Work in the real example Brian supplies (2–3 sentences, a number if he has one). Output contract applies (frontmatter, `target: substack`, hub link).
+1. **Draft the issue** into `content.newsletter_drafts_path` as `Issue 0N - <Title>.md`, from the active idea note (marked by synthesis) and its linked clips. Work in the real example Brian supplies (2–3 sentences, a number if he has one). Output contract applies (frontmatter, `target: substack`, hub link) — including the provenance contract below, which is not optional.
 2. **Iterate on command.** Brian edits like an editor: "tighten," "cut section two," "that claim is wrong," "punch up the open." Apply directly and keep going.
 3. **Side-by-side variants.** When Brian asks for another take — "give me a punchier version," "a second take on the open," "a shorter cut" — write a **parallel draft** in the same folder as `Issue 0N - <Title> (<variant descriptor>).md`, not a replacement, so he can compare versions against each other. Iterate on any variant. Keep a one-line note at the top of each variant saying what makes it different.
 4. **Finalize one.** Brian picks the winning draft. Mark it the final (frontmatter `status: drafted`), and **archive the losing variants** (`status: archived`) — do not delete them. Only the finalized issue proceeds.
 
 **Gate:** no LinkedIn post is derived until Brian has finalized one newsletter draft. Verify any claim written as Brian's experience before it ships.
+
+## Provenance — links run both directions
+
+A clip that fed a draft has to be reachable from the draft, and the draft has to be reachable from the clip. One direction alone rots: the vault currently holds 43 clips with zero backlinks because nothing ever wrote the return link.
+
+**Every asset this skill creates carries a `sources:` list in frontmatter** — folder-qualified wikilinks to the clips and idea notes it drew from. Inherit it from the idea note's `sources:` key, written by `wednesday-synthesis`. If the idea note has no `sources:` key, reconstruct the list from the clips actually used and say in one line that you did, so the gap in the handoff is visible. An asset genuinely written from Brian's head with no feeding clip carries `sources: []`, never a missing key.
+
+**Then stamp the return link on each source clip.** For every clip in that `sources:` list, add the new draft to the clip's own frontmatter under `used-in:` as a folder-qualified wikilink, creating the key if it is absent and appending if it already exists. Never overwrite an existing `used-in:` entry, never remove one, and change nothing else in the clip — not its body, not its tags, not its status. This is the only circumstance in which this skill writes into `01-Clips`.
+
+Do this at the end of Phase 1 for the finalized issue only, not for variants, and again at the end of Phase 2 for each derived post. Losing variants get archived without stamping anything.
+
+Report the stamps in one line: how many clips were updated and which. If a clip named in `sources:` cannot be found on disk, say which one and keep going — a broken source reference is worth surfacing, not worth stopping the draft over.
 
 ## Phase 2 — derive the posts (variable count)
 
@@ -58,7 +70,7 @@ Trigger: "derive N posts" (or "cut the posts"). Only after Phase 1 is finalized.
    - **2** — two distinct angles, e.g. story + framework.
    - **3** — story / framework / contrarian.
    - Confirm the mix with Brian in one line if it's ambiguous.
-3. **Write** each post into `content.linkedin_drafts_path` as its own note, named `Post - <Title>.md`, standalone, 150–250 words, in Brian's published LinkedIn style: short lines, zero em dashes, specific tool names, a closing question, hashtags at the bottom. Output contract applies (`target: linkedin`, `[[04-Drafts/_index|↑ Drafts]]`). Add a `derived/issue-0N` tag and a wikilink back to the source issue so the post is not an orphan. Audit each against `anti-ai-writing.md`.
+3. **Write** each post into `content.linkedin_drafts_path` as its own note, named `Post - <Title>.md`, standalone, 150–250 words, in Brian's published LinkedIn style: short lines, zero em dashes, specific tool names, a closing question, hashtags at the bottom. Output contract applies (`target: linkedin`, `[[04-Drafts/_index|↑ Drafts]]`). Add a `derived/issue-0N` tag and a wikilink back to the source issue so the post is not an orphan. Carry the issue's `sources:` list onto the post and stamp `used-in:` on each source clip, per the provenance section above. Audit each against `anti-ai-writing.md`.
 4. Hand off to `polish-and-score` ("polish and score").
 
 ## Hard rules
@@ -67,6 +79,8 @@ Trigger: "derive N posts" (or "cut the posts"). Only after Phase 1 is finalized.
 - **Match the vault's naming.** `Issue 0N - <Title>.md` and `Post - <Title>.md`. No slugs, no `_vB` suffixes.
 - **Hub link is `[[04-Drafts/_index|↑ Drafts]]`.** The subfolder indexes do not exist. Do not link to them and do not create them.
 - **Every derived post links back to its source issue.** A post with no outbound wikilink is an orphan under the output contract.
+- **Provenance is written, not remembered.** Every asset carries `sources:`; every source clip gets `used-in:` stamped back. A draft that shipped without both is incomplete, even if the clips were named in chat.
+- **Writing into `01-Clips` is limited to the `used-in:` key.** Append only. Never edit a clip's body, tags, or status.
 - **Variants are additive.** A new variant never overwrites an existing draft; losing variants are archived, not deleted.
 - **Respect the post count.** Derive exactly what Brian asked for.
 - **Borrow ideas with attribution, never prose.**

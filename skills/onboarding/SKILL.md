@@ -121,6 +121,12 @@ Give the user a working cockpit on the home page instead of bare databases. Use 
 
 These are linked views — they point at the real databases, so edits in either place stay in sync. If a `create-view` call fails, note which view and continue; a missing dashboard view is cosmetic, not setup-blocking.
 
+## Step 2.6 — Create the Weekly Plans and wraps page
+
+`monday-planner` and `friday-wrap` both write their output as sub-pages of one shared parent, so a week's plan and its wrap sit together in date order. Without that parent they fall back to the home page, and within a month the home page is a stack of loose week pages.
+
+Create one page under the home page titled **Weekly Plans and wraps** (icon 🗓️). Leave the body empty — the planner and the wrap fill it. Capture the returned page ID and write it into `notion.week_plans_page` in Step 4.
+
 ## Step 3 — Collect the rest of the config
 
 Gather the remaining values conversationally and assemble the full config:
@@ -134,7 +140,7 @@ Gather the remaining values conversationally and assemble the full config:
 
 ## Step 4 — Write the config file
 
-Write `solo-os-config.json` to the project folder confirmed in Step 1 with `_version` `"1.3"`, the captured Notion IDs, the home page ID, the four internal-bucket page IDs from Step 2.4 under `notion.internal_engagements`, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
+Write `solo-os-config.json` to the project folder confirmed in Step 1 with `_version` `"1.3"`, the captured Notion IDs, the home page ID, the Weekly Plans and wraps page ID from Step 2.6 under `notion.week_plans_page`, the four internal-bucket page IDs from Step 2.4 under `notion.internal_engagements`, and the values from Step 3. Use `config.example.json` in this plugin as the shape. Confirm the file path back to the user.
 
 Never write real IDs or emails into `config.example.json` — that file stays sanitized.
 
@@ -144,9 +150,9 @@ Do not declare success until these pass:
 
 1. For each of the seven config IDs, call Notion `fetch` and confirm it resolves and the title matches (Tasks, Meetings, Engagements, Leads & Opportunities, Content Calendar, Agent Ideas, Content Ideas).
 2. Confirm the relations resolved with the right names: Tasks has `Engagement` and `Meeting`; Engagements has `Tasks`, `Meetings`, and `Source lead`; Meetings has `Action items`; Leads has `Converted to`; Content Ideas has `Calendar post` and Content Calendar has `Idea source`.
-3. Confirm the home page shows the seven dashboard views.
+3. Confirm the home page shows the seven dashboard views, and that `notion.week_plans_page` resolves to a page titled "Weekly Plans and wraps". If that key is missing, `monday-planner` and `friday-wrap` still run — they fall back to the home page and say so — but the fallback is a degraded install, not a passing one.
 4. Confirm all four IDs in `notion.internal_engagements` resolve, their titles match (Marketing Content, Business Admin, Business Development, Networking), and each has Status, Rate, Billing model, and Start date empty with `Weekly report` unchecked. A bucket carrying a Status is a failure — it will show up in client reporting.
-5. Query the Tasks data source for open tasks with a null Engagement. Expect zero rows. On a fresh install this passes trivially; run it anyway, because it is the check the user will re-run later and it should be established as normal from day one.
+5. Run all **three** verification queries in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md` — open Tasks with a null Engagement, Meeting pages with a null Engagement, and duplicate meeting pages grouped by `Granola link`. Expect zero rows from each. Each one passes while the others fail, which is why all three run. On a fresh install they pass trivially; run them anyway, because this is the set the user re-runs later and it should be established as normal from day one.
 6. Confirm Gmail and Calendar each return data (a recent message, an upcoming event).
 7. Run the daily check-in end to end. If it produces a clean today-view with no missing-key errors, onboarding succeeded.
 

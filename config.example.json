@@ -22,6 +22,7 @@
 
   "notion": {
     "home_page": "<notion home page id>",
+    "week_plans_page": "<weekly plans and wraps page id — parent for both Week plan and Week wrap pages>",
     "tasks_db": "<tasks data source id>",
     "meetings_db": "<meetings data source id>",
     "engagements_db": "<engagements data source id>",

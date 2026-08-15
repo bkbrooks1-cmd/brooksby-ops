@@ -4,7 +4,7 @@ The Solopreneur OS, packaged as a Cowork plugin. Config-driven agents for a solo
 
 The skills carry the logic. Your data lives in one config file. To run this for a different person, you swap the config, not the skills.
 
-**Version 0.11.3** — thirteen skills. See `## Status` for what changed.
+**Version 0.11.4** — thirteen skills. See `## Status` for what changed.
 
 ## What's in here
 
@@ -96,6 +96,20 @@ Both are account-level skills the content chain calls, and neither can be patche
 - **`post-scorer`** is the LinkedIn scorer. It hardcodes its Apify actor at step 2 and does not read `content.metrics.apify_linkedin_actor`. Change that config key and the scorer keeps using its literal until someone edits the skill. The config file carries a note on the key saying so.
 
 ## Status
+
+**v0.11.4 (2026-08-15)** — plans and wraps get their own parent page, and content provenance runs both directions.
+
+Two unrelated leaks, fixed together. The week plan and the week wrap were each written as sub-pages of the home page, so they never sat next to each other and the home page collected loose week pages. Separately, a clip that fed a draft was named in chat and nowhere else — the vault held 43 clips with zero backlinks, because nothing ever wrote the return link.
+
+- New config key **`notion.week_plans_page`**: the shared parent for both. `monday-planner` and `friday-wrap` now require it and write their pages under it, in date order. If the key is absent both fall back to `notion.home_page` and say so in the output, so an older config degrades instead of failing.
+- `onboarding` gains **step 2.6**: it creates the "Weekly Plans and wraps" page on a fresh install and writes its ID to config. Verification step 3 confirms the key resolves.
+- `wednesday-synthesis` names supporting material as folder-qualified wikilinks, not prose, and on Brian's pick writes that cluster into the idea note's frontmatter as a **`sources:`** list. That list is the handoff. An angle with no feeding clip carries `sources: []`, never a missing key, so "no source" stays distinguishable from "never recorded."
+- `draft-content` inherits `sources:` onto every asset it creates, then stamps the return link — **`used-in:`** — onto each source clip. Append only: this is the one circumstance in which the skill writes into `01-Clips`, and it touches nothing but that key. Runs at the end of Phase 1 for the finalized issue and again in Phase 2 for each derived post. Losing variants stamp nothing.
+- That closes a loop `friday-wrap` was already half of: its vault-health prune uses `used-in:` as the clip keep test, so until something wrote the key, every clip looked unused and age was the only signal available. Synthesis writes `sources:`, draft stamps `used-in:`, the wrap reads it.
+- The engagement audit grew from one query to three, in `references/engagement-routing.md`: open Tasks with a null Engagement, **Meeting pages** with a null Engagement, and **duplicate meeting pages grouped on `Granola link`**. Each passes while the others fail. Capture writes an engagement to three record types, so checking Tasks alone leaves meeting pages orphaned; and a failed dedupe re-summarizes the call from scratch, so the copies carry different titles and no title- or date-based check will ever find them. Two cautions came out of the 2026-08-11 incident: scan the whole table rather than a date window, and never bulk-delete on the "empty copy is the duplicate" heuristic alone.
+- `onboarding` step 5, `onboarding/references/notion-schema.md`, and `capture` step 2 all point at the three-query set.
+
+No schema version change — config stays **1.3**, with one added key.
 
 **v0.11.3 (2026-08-11)** — every task belongs to an engagement.
 

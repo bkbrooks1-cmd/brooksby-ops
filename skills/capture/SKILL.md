@@ -39,6 +39,8 @@ For each meeting, check the Notion Meetings data source `collection://{notion.me
 
 Already-captured meetings are skipped silently. This is what makes the routine safe to run from capture, the check-in, and the planner without creating duplicates.
 
+When this dedupe fails it fails quietly: the meeting is re-summarized from scratch, so the duplicate carries a **different title for the same call** and no title- or date-based check will ever find it. The audit query that catches it — grouping the Meetings DB on `Granola link` — is check 3 in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md`. Run it if the user suspects duplicates, or after any run where the Granola link was written late.
+
 ### 3. Fetch detail for uncaptured meetings
 
 For each uncaptured meeting, call Granola `get_meetings` (by id) for the AI summary, notes, and attendees. Do not pull the full transcript by default — link to it instead (see minutes format). Only call `get_meeting_transcript` if the user explicitly asks for transcript-level detail on a meeting.
