@@ -1,11 +1,16 @@
 ---
 name: capture
-description: Capture recent meetings from Granola into Notion — meeting minutes, action items, and status — and disposition them. Use when the user says "capture", "capture meetings", "capture my meetings", "pull my meetings", "write up my meetings", "meeting minutes", or asks to turn recent calls into notes and tasks. Also runs as a step inside daily-checkin and monday-planner. Requires the Granola connector.
+description: Capture what came in since last time — recent Granola meetings into Notion as minutes, action items and status, and self-addressed idea emails from Gmail into the content vault, Notion Content Ideas, and Agent Ideas. Use when the user says "capture", "capture meetings", "capture my meetings", "capture my ideas", "pull my meetings", "write up my meetings", "meeting minutes", "sweep my inbox for ideas", or asks to turn recent calls or emailed notes into notes and tasks. Also runs as a step inside daily-checkin and monday-planner.
 ---
 
 # Capture
 
-Turn recent Granola meetings into Notion meeting pages with minutes, action items, and status — and roll the action items into Tasks. This is the canonical meeting-capture routine; daily-checkin and monday-planner run it too, so it must be safe to run repeatedly without creating duplicates.
+Turn what came in since last time into records the rest of the OS can use. Two independent sweeps:
+
+- **Ideas** (step 0) — self-addressed emails carrying a clip or an idea, into the content vault, Notion Content Ideas, and the Agent Ideas DB. Needs Gmail.
+- **Meetings** (steps 1 to 7) — Granola meetings into Notion meeting pages with minutes, action items, and status, with the action items rolled into Tasks. Needs Granola.
+
+The sweeps do not depend on each other. Run whichever ones have their connector; say plainly which one was skipped and why. This is the canonical capture routine; `daily-checkin` runs it as phase 1 of every morning run and `monday-planner` runs it too, so both sweeps must be safe to run repeatedly without creating duplicates. It also stands alone — "capture" on its own runs both sweeps and nothing else.
 
 ## Config
 
@@ -18,13 +23,68 @@ Required keys: `notion.meetings_db`, `notion.tasks_db`, `notion.engagements_db`,
 
 Every meeting page, action item, and follow-up task this skill creates carries an engagement. The rule and the four internal buckets live in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md` — read it before step 4.
 
-Optional: `capture.lookback` (one of `this_week`, `last_week`, `last_30_days`; default `last_week`). Also optional: a `content` block (see config.example.json) — enables idea notes to the content vault (step 5c). If absent, skip step 5c silently.
+Optional: `capture.lookback` (one of `this_week`, `last_week`, `last_30_days`; default `last_week`). Also optional: a `content` block (see config.example.json) — enables idea notes to the content vault (steps 0 and 5c). If absent, skip step 0 and step 5c silently.
 
-## Prerequisite
+Step 0 also reads `capture.idea_capture` when present:
 
-The **Granola** connector must be enabled. If it is not, say so plainly and stop — capture has nothing to read without it. (Granola is optional for the OS overall, but required for this skill.)
+```json
+"idea_capture": {
+  "processed_label": "Captured",
+  "lookback_days": 30,
+  "personal_ref_path": "D:/Brain/05-Training and Content for my reference"
+}
+```
+
+Defaults if the block is absent: label `Captured`, 30 days, and no `ref` destination (a `ref` item routes to `00-Inbox` instead).
+
+## Prerequisites
+
+Each sweep needs its own connector, and neither blocks the other:
+
+- **Gmail** — required for step 0. Without it, skip step 0 and say so.
+- **Granola** — required for steps 1 to 7. Without it, skip the meeting sweep and say so.
+
+If neither connector is available, say so plainly and stop. (Both are optional for the OS overall.)
 
 ## The routine
+
+### 0. Sweep Gmail for captured ideas
+
+The user emails themselves clips and ideas from their phone. This step turns that mail into notes. Skip silently if there is no `content` block in config; skip with a one-line note if Gmail is unavailable.
+
+The subject grammar, the routing table, the `Why:` body rule, legacy subject forms, and the dedupe rule live in `${CLAUDE_PLUGIN_ROOT}/references/idea-capture-convention.md`. Read it before running this step — do not reconstruct the parsing rules from memory.
+
+**0a. Query.** Gmail `search_threads` for mail the user sent to themselves, excluding anything already processed:
+
+```
+to:{email.monitored_addresses} -label:{idea_capture.processed_label} newer_than:{lookback_days}d in:anywhere
+```
+
+Run one query per monitored address. The user sends from several accounts into one inbox, so match on recipient, not sender.
+
+**0b. Parse.** For each thread, read the subject against the convention and pull the full body with `get_thread` (`PLAIN_TEXT`). Extract the `Why:` line, the link, and any body text. Body text in the user's own words is the most valuable part of the capture — carry it into the note, condensed but not paraphrased into blandness.
+
+**0c. Dedupe.** Two ways things double up here:
+
+- Same thread seen twice — the `processed_label` catches this.
+- Same URL sent twice on different days, which the label cannot catch because both threads are new. Compare URLs across the batch and against existing clips in `{content.vault_root}/01-Clips` before writing. One URL is one clip.
+
+**0d. Route.** Per the convention's table: `newsletter` and `post` to the matching idea folder under `content.ideas_path`, `agent` to `collection://{notion.agent_ideas_db}`, `ref` to `idea_capture.personal_ref_path`, anything unrecognized to `00-Inbox`.
+
+Two judgment calls belong to this step, not to the parser:
+
+- **Merge near-duplicates.** Two emails pushing the same angle from different source links are one idea note with both clips in `sources`, not two notes. Splitting one idea across two notes is how a backlog starts looking fuller than it is.
+- **Flag reruns.** Check the proposed idea against `content.published_log_path` before writing. If it is close to something already published, write the note anyway and put the overlap in the note body as a flag. The user decides whether it is a new angle; the skill does not silently drop it.
+
+**0e. Write.** Vault notes follow the output contract at `content.contract_path` — read that file, do not reconstruct it. `sources` and `used-in` are written from both ends in the same pass: a clip created alongside the idea it feeds carries a `used-in` link back, and the idea names the clip in `sources`.
+
+Notes going to `idea_capture.personal_ref_path` are deliberately outside the contract. That folder is a personal reference shelf, not part of the content system — plain markdown, no frontmatter, no hub link, and never a source for content.
+
+**0f. Mirror content ideas to Notion.** For each `newsletter` or `post` idea note, add a row to `collection://{notion.content_ideas_db}` with Status = Backlog, the Platform matching the qualifier, and the vault path named in Notes. The vault note is the source of truth; the Notion row is the backlog view of it. Clips do not get Notion rows.
+
+**0g. Label.** Apply `idea_capture.processed_label` to each thread only after its note is written and confirmed. Labeling before the write is what makes a failed run lose the thought permanently. Create the label if it does not exist.
+
+Include everything proposed in step 0 in the step 7 disposition, and write it on the same confirmation.
 
 ### 1. Pull recent meetings
 
@@ -120,7 +180,7 @@ For each action item, prepare a row for the Tasks data source `collection://{not
 
 ### 7. Disposition
 
-Show the user everything proposed before writing anything: the meeting pages to create, and under each, the prep link (step 5d), the action-item Tasks, and any idea notes (step 5c). Then:
+Show the user everything proposed before writing anything: the swept idea notes and their destinations (step 0), then the meeting pages to create, and under each, the prep link (step 5d), the action-item Tasks, and any idea notes (step 5c). Then:
 
 - Create only on confirmation. Offer "yes to all" or let the user pick per meeting.
 - After creating each Meeting page, link its action-item Tasks via the `Meeting` / `Action items` relation, and link the prep task from step 5d.
@@ -132,7 +192,10 @@ Show the user everything proposed before writing anything: the meeting pages to 
 - Never create a duplicate Meeting page — always dedupe in step 2 first.
 - Never write a null Engagement on a meeting page, an action item, or a prep task. Every one of them resolves to a client row or an internal bucket.
 - Drafts only for anything leaving the building; the user sends. Accounts listed in `firewall.no_connector_accounts` are never connected — capture their meeting notes into Notion as normal (Granola is the user's own record), but never send anything to those accounts.
-- Idea notes (step 5c) are always sanitized and never come from firewalled engagements. When in doubt about whether a detail is client-confidential, leave it out.
-- If Granola is unavailable mid-run, stop and say so; do not fabricate minutes.
+- Idea notes (steps 0 and 5c) are always sanitized and never come from firewalled engagements. When in doubt about whether a detail is client-confidential, leave it out. An emailed idea that names a firewalled account is generalized if it routes to Notion, and dropped if it was headed for the vault.
+- Never apply the processed label before the note is written. A labeled thread with no note is a thought lost silently, and nothing downstream will ever catch it.
+- Never write frontmatter or a hub link into `idea_capture.personal_ref_path`. That shelf is outside the content system on purpose.
+- If Granola is unavailable mid-run, stop the meeting sweep and say so; do not fabricate minutes. Step 0 still runs.
+- If Gmail is unavailable, skip step 0 and say so; the meeting sweep still runs.
 - Never edit or re-summarize a meeting page that already exists unless the user asks.
 - Never leave a prep artifact unlinked when its meeting page exists. Step 5d is not optional when a match is found.

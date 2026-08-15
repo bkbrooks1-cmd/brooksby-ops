@@ -4,7 +4,7 @@ The Solopreneur OS, packaged as a Cowork plugin. Config-driven agents for a solo
 
 The skills carry the logic. Your data lives in one config file. To run this for a different person, you swap the config, not the skills.
 
-**Version 0.11.4** — thirteen skills. See `## Status` for what changed.
+**Version 0.11.6** — thirteen skills. See `## Status` for what changed.
 
 ## What's in here
 
@@ -13,12 +13,12 @@ The skills carry the logic. Your data lives in one config file. To run this for 
 | Skill | What it does |
 |---|---|
 | `onboarding` | First-time setup. Provisions the seven Notion databases, captures their IDs into config, connects the tools, and verifies with a check-in. Say "set up the OS". |
-| `daily-checkin` | Today's meetings with prep status, email triaged into proposed tasks, deliverable check-off, plus recent meetings to capture. Say "check in". |
+| `daily-checkin` | The whole morning in one command, three phases in order: runs `capture` to pull in new meetings and emailed ideas, shows the today view (meetings with prep status, due and overdue work, email triaged into proposed tasks, deliverable check-off), then refreshes the Daybook last so it reflects the writes. `checkin.run_capture` and `checkin.render_daybook` turn the outer phases off. Say "check in". |
 | `monday-planner` | Builds the week plan page in Notion, creates prep tasks, captures last week's meetings, drafts the Monday weekly email. With a content vault configured, the plan carries the standing content deliverables with their draft paths. Say "plan my week". |
-| `capture` | Turns recent Granola meetings into Notion meeting pages with minutes, action items, and status, plus a Word copy to the engagement folder for client-facing meetings and a sanitized idea note when a meeting surfaces a teachable insight. Runs standalone and as a step inside the check-in and planner. Requires Granola. |
+| `capture` | Two independent sweeps. Ideas: self-addressed clip and idea emails swept from Gmail into the content vault, Notion Content Ideas, and Agent Ideas, deduped by a processed label. Meetings: recent Granola meetings into Notion meeting pages with minutes, action items, and status, plus a Word copy to the engagement folder for client-facing meetings and a sanitized idea note when a meeting surfaces a teachable insight. Runs standalone and as a step inside the check-in and planner. Gmail drives the idea sweep, Granola the meeting sweep; either runs without the other. |
 | `friday-wrap` | Closes out the week: confirms what got done, rolls overdue open work forward as carryover, writes a week-wrap page. With a content vault configured, unpublished drafts roll as carryover and the vault-health checklist runs with the wrap. Say "weekly wrap". |
 | `build-prep` | On-demand prep brief for a named or next meeting: last-meeting status, open items owed, recent email, and agenda in one place. Say "build the prep". |
-| `render-daybook` | One-page snapshot of what is true right now: today's schedule, due and waiting work, work by engagement, the deliverable radar, and optional revenue. Reads only; publishes a Cowork artifact. Say "refresh my daybook". |
+| `render-daybook` | One-page snapshot of what is true right now: today's schedule, due and waiting work, work by engagement, the deliverable radar, and optional revenue. Reads only; publishes a Cowork artifact. Runs standalone and as the last phase of the check-in. Say "refresh my daybook". |
 
 ### Content engine
 
@@ -96,6 +96,24 @@ Both are account-level skills the content chain calls, and neither can be patche
 - **`post-scorer`** is the LinkedIn scorer. It hardcodes its Apify actor at step 2 and does not read `content.metrics.apify_linkedin_actor`. Change that config key and the scorer keeps using its literal until someone edits the skill. The config file carries a note on the key saying so.
 
 ## Status
+
+**v0.11.6 (2026-08-15)** — the check-in becomes the whole morning.
+
+- `daily-checkin` now runs in three explicit phases: **capture**, then the **today view**, then **render-daybook**. One command instead of three.
+- The order is load-bearing. Capture writes, the today view reads and writes, the Daybook renders last as a read layer over both. Rendering the Daybook first produced a snapshot that was stale before the user saw it.
+- Phases 1 and 2 share **one confirmation gate**. Approving a morning should not take three rounds.
+- New config block `checkin` — `run_capture` and `render_daybook`, both defaulting to true when absent. Set either false for the bare today view.
+- **The email split is now explicit.** Both phases read Gmail, so the skill states which one owns what: mail matching the idea-capture convention becomes a note via capture step 0, everything else becomes a task via the today view. The today view excludes the capture processed label, so an emailed idea can no longer become both.
+- The old "Meetings to capture" output block is gone — phase 1 does that work now. It is replaced by a one-line **Captured** summary.
+- `capture` and `render-daybook` remain standalone commands. This release adds a caller, it does not remove an entry point.
+
+**v0.11.5 (2026-08-15)** — capture gains an email idea sweep.
+
+- `capture` is now two independent sweeps. New **step 0** queries Gmail for self-addressed clip and idea mail, parses the subject grammar, and routes each item to the content vault, Notion Content Ideas, or the Agent Ideas DB. The meeting sweep is unchanged and unaffected; either runs without the other.
+- New shared reference `references/idea-capture-convention.md` holds the subject grammar (`<Verb> <qualifier>: <title>`), the routing table, the `Why:` body rule, legacy subject forms, and the dedupe rule. The skill points at it rather than restating it.
+- New config block `capture.idea_capture` — `processed_label`, `lookback_days`, `personal_ref_path`. The processed label is the dedupe key and is applied only after a note is written, so a failed run never loses a thought.
+- `personal_ref_path` is deliberately outside the vault output contract. It is a personal reference shelf, not a content source.
+- The gap this closes: `wednesday-synthesis` consumed `01-Clips` and `02-Ideas`, but the only producers were the web clipper and hand-typed notes. Mail sent from a phone had no path into the system and silently piled up in the inbox.
 
 **v0.11.4 (2026-08-15)** — plans and wraps get their own parent page, and content provenance runs both directions.
 

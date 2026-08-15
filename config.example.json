@@ -1,12 +1,10 @@
 {
   "_comment": "Sanitized template showing the shape of solo-os-config.json. Onboarding writes the real file for you — you do not normally edit this by hand. No real IDs, emails, or paths here; this is the version that ships in the repo.",
   "_version": "1.3",
-
   "user": {
     "name": "YOUR NAME",
     "company": "YOUR COMPANY"
   },
-
   "voice": {
     "name": "YOUR FIRST NAME",
     "style_guide_path": "",
@@ -19,7 +17,6 @@
     "_newsletter_voice_note": "Substack register only. Applied by polish-and-score step 3 on newsletter issues; never on a LinkedIn post. The file is tuned across published issues, not generated — if it is missing on an instance that has published before, restore it rather than regenerating it.",
     "newsletter_voice_path": "About Me/newsletter-voice.md"
   },
-
   "notion": {
     "home_page": "<notion home page id>",
     "week_plans_page": "<weekly plans and wraps page id — parent for both Week plan and Week wrap pages>",
@@ -31,7 +28,6 @@
     "agent_ideas_db": "<agent ideas data source id>",
     "content_ideas_db": "<content ideas data source id>",
     "content_pipeline_page": "<content pipeline workflow page id, optional>",
-
     "internal_engagements": {
       "_comment": "Non-client buckets in the Engagements DB. Every task gets an Engagement; work that isn't client work routes here. These rows carry no Status/Rate/Billing model, which is what keeps them out of revenue reporting and the Status=Active views. Onboarding creates the four rows and populates these IDs — you do not fill them in by hand. Routing rules: references/engagement-routing.md.",
       "marketing_content": "",
@@ -40,20 +36,29 @@
       "networking": ""
     }
   },
-
   "email": {
-    "monitored_addresses": ["you@example.com"],
+    "monitored_addresses": [
+      "you@example.com"
+    ],
     "send_as": "you@example.com"
   },
-
+  "checkin": {
+    "_comment": "Phases of the daily-checkin run. Both default true when absent. run_capture folds the capture skill in as phase 1; render_daybook refreshes the Daybook as phase 3, after the writes.",
+    "run_capture": true,
+    "render_daybook": true
+  },
   "firewall": {
     "no_connector_accounts": []
   },
-
   "capture": {
-    "lookback": "last_week"
+    "lookback": "last_week",
+    "idea_capture": {
+      "_comment": "Step 0 of capture. Sweeps self-addressed idea mail into the content vault, Notion Content Ideas, and Agent Ideas. Requires the content block. Subject grammar and routing table: references/idea-capture-convention.md.",
+      "processed_label": "Captured",
+      "lookback_days": 30,
+      "personal_ref_path": "/path/to/vault/05-Personal-Reference"
+    }
   },
-
   "_content_example": {
     "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a local content vault: Notion owns tasks and calendar; the vault owns drafts and research. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), the drafts/vault-health checks in friday-wrap, and the content-engine skills (wednesday-synthesis, draft-content, polish-and-score, mark-published, collect-metrics). Omit the block entirely to run the OS without a content pipeline.",
     "vault_root": "D:/YourVault",
@@ -75,15 +80,25 @@
       "linkedin_scorer_skill": "post-scorer"
     },
     "metrics": {
-      "linkedin_auto_fields": ["Reactions", "Comments", "Reposts"],
-      "linkedin_manual_fields": ["Impressions", "Profile views"],
-      "substack_manual_fields": ["Opens", "Open rate", "New subscribers"],
+      "linkedin_auto_fields": [
+        "Reactions",
+        "Comments",
+        "Reposts"
+      ],
+      "linkedin_manual_fields": [
+        "Impressions",
+        "Profile views"
+      ],
+      "substack_manual_fields": [
+        "Opens",
+        "Open rate",
+        "New subscribers"
+      ],
       "linkedin_profile_url": "https://www.linkedin.com/in/your-handle/",
       "_apify_linkedin_actor_note": "Read by collect-metrics only. The account-level post-scorer skill hardcodes the same actor string at its step 2 and does not read this key — change one, change both.",
       "apify_linkedin_actor": "apimaestro/linkedin-profile-posts"
     }
   },
-
   "_engagements_example": {
     "_note": "Optional. Add an entry per engagement. Include a weekly_email block to have the Monday planner draft that engagement's weekly email — see skills/monday-planner/references/weekly-email.md. Keep the real 'engagements' list below; this _example key is ignored.",
     "name": "Example Client ERP Migration",
@@ -98,6 +113,5 @@
       "save_to": "Projects/Example Client/deliverables/WeeklyCheckin_{date}.html"
     }
   },
-
   "engagements": []
 }

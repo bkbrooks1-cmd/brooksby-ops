@@ -1,6 +1,6 @@
 ---
 name: render-daybook
-description: Render the Daybook — one page showing what is true right now across client work, the schedule, and money. Use when the user says "refresh my daybook", "show my daybook", "build my daybook", "update the daybook", or asks to see the dashboard. Reads Notion, Google Calendar and (if configured) QuickBooks, and publishes a Cowork artifact. Reads only; never writes to Notion.
+description: Render the Daybook — one page showing what is true right now across client work, the schedule, and money. Use when the user says "refresh my daybook", "show my daybook", "build my daybook", "update the daybook", or asks to see the dashboard. Also runs as the last phase of daily-checkin. Reads Notion, Google Calendar and (if configured) QuickBooks, and publishes a Cowork artifact. Reads only; never writes to Notion.
 ---
 
 # Render daybook
@@ -8,6 +8,8 @@ description: Render the Daybook — one page showing what is true right now acro
 One page that answers "what is true right now." It is a read layer over the databases the rest of the OS already writes to. Every number on it traces back to a row somebody or something already created.
 
 The artifact is a snapshot, not a live view. It says so on its face.
+
+Runs standalone on request, and as phase 3 of `daily-checkin` — always last, after that skill's writes have been confirmed, so the snapshot reflects them.
 
 ## Config
 
