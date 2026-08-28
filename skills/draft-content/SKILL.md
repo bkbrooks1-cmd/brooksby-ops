@@ -19,7 +19,7 @@ Used if present: `content.default_post_count` (default 3), `voice.newsletter_voi
 
 ## Voice
 
-Draft in Brian's voice using `voice.sources` — `about-me.md` (who he is), `voice.md` (how he sounds: operator not marketer, blunt, short declaratives, opens in the problem, ends on the work), and `anti-ai-writing.md` (the rulebook). Audit every draft against `anti-ai-writing.md` before showing it. No em dashes, no buzzwords, no soft CTAs, no rhetorical-question openers. American English throughout.
+Draft in Brian's voice using `voice.sources` — `about-me.md` (who he is), `voice.md` (how he sounds: operator not marketer, blunt, short declaratives, opens in the problem, ends on the work), and `voice-exemplars.md` (five complete clean pieces; read all five, never the closest in topic). **`anti-ai-writing.md` is not a drafting source** — it is reached through `voice.style_guide_path` as the audit gate. Draft against `voice.md`'s `<avoid>` bank, then audit every draft against `anti-ai-writing.md` before showing it. No em dashes, no buzzwords, no soft CTAs, no rhetorical-question openers. American English throughout.
 
 ## File naming and hub links (match the vault, not a scheme)
 

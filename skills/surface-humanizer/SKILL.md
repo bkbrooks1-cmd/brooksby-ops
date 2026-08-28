@@ -22,6 +22,8 @@ If the rulebook cannot be found, say so and run the pass from the built-in check
 
 Open `anti-ai-writing.md` before touching the draft. It is the source of truth and it changes. The checklist below is the run order, not a replacement for reading it.
 
+⚠ **Also open `voice.md` when this skill is invoked standalone.** Inside `polish-and-score` it is already loaded by step 1, but on a direct "humanize this" it is not — and `voice.md` carries carve-outs that this skill's sweeps would otherwise strip. The one that matters most: **anticipatory reassurance is not a hedge.** A hedge weakens a claim the writer is making; reassurance answers a worry the reader is having ("you'll find that you reference it very little"). The empty-hedge sweep below will cut it if nothing tells it not to. Same applies to concession, which reads as hedging and is the argument working.
+
 ## The pass, in order
 
 Work through all seven. Do not stop at the banned-word table — that is the easy half and the least detectable.
@@ -84,6 +86,7 @@ Run every surviving sentence through the rulebook's filter:
 - **Never change the argument.** This pass changes how a draft reads, never what it claims. If a sentence has to go because it is empty, say so rather than inventing a replacement claim.
 - **Never invent a number, a client, or an anecdote.** If a sentence needs a specific and there isn't one, flag it for Brian instead of filling the gap.
 - **Keep the voice's deliberate breaks.** Sentence fragments, sentences opening with And or But, and one-sentence paragraphs are Brian's, not AI tells. Do not normalize them out.
+- **Keep concession and anticipatory reassurance.** Both read as hedging to a hedge sweep and neither is one. Concession narrows a claim right after making it and is the argument working — removing it to make a piece punchier is a defect. Reassurance answers a worry the *reader* has rather than weakening a claim the writer is making. The full carve-outs are in `voice.md`; load it if this skill was invoked on its own.
 - **The rulebook wins on anything it covers that this file does not.** Where the two disagree on a *limit*, the stricter one wins: this file's zero-em-dash rule is deliberately tighter than the rulebook's one-per-500-words, and it stands. Where they disagree on a *rule*, the rulebook is right and this file needs updating.
 - **No client names.** OFP never appears in any draft or in `D:\Brain`.
 

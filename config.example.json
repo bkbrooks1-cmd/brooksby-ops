@@ -7,13 +7,15 @@
   },
   "voice": {
     "name": "YOUR FIRST NAME",
-    "style_guide_path": "",
+    "style_guide_path": "About Me/anti-ai-writing.md",
     "sources": [
       "About Me/about-me.md",
       "About Me/voice.md",
-      "About Me/anti-ai-writing.md"
+      "About Me/voice-exemplars.md"
     ],
     "_sources_note": "voice.sources is the GENERAL voice, applied to every asset. newsletter-voice.md is deliberately NOT listed here — it is a Substack-only register and would bleed into LinkedIn drafting if treated as a general source. It is reached only through newsletter_voice_path.",
+    "_style_guide_note": "anti-ai-writing.md is reached through style_guide_path, NOT through voice.sources. It is an audit-time file: polish-and-score runs it as step 4, the final gate of both chains, and surface-humanizer reads it directly. Listing it in voice.sources as well loads it during drafting too and pays for it twice on every piece — on the reference instance that was ~5,800 tokens, 18% of the stack. Drafting-time word guidance comes from the <avoid> phrase bank in voice.md, a deliberate subset; this file remains the authority and wins at audit.",
+    "_exemplars_note": "voice-exemplars.md holds five complete self-written pieces as few-shot anchors. Read all five; do NOT select the one closest in topic to the draft — topic-matching exemplars measurably reduces voice fidelity. Five is the ceiling, not a floor: fidelity flattens after five and a sixth only costs context. Where an exemplar contradicts a law in voice.md, the exemplar wins.",
     "_newsletter_voice_note": "Substack register only. Applied by polish-and-score step 3 on newsletter issues; never on a LinkedIn post. The file is tuned across published issues, not generated — if it is missing on an instance that has published before, restore it rather than regenerating it.",
     "newsletter_voice_path": "About Me/newsletter-voice.md"
   },

@@ -1,7 +1,6 @@
 {
   "name": "brooksby-ops",
-  "version": "0.12.0",
-  "_description_note": "Hard limit: under 500 characters — the uploader rejects anything longer. Current length 462. Count before editing; do not re-expand the skill list into individual skill names.",
+  "version": "0.12.1",
   "description": "Solopreneur OS — config-driven agents for solo consultants running their business in Notion, Gmail, Calendar, and Granola. Onboarding, daily check-in, meeting prep and capture, Monday planner, Friday wrap, the Daybook snapshot, and a full content engine: synthesis, drafting, polish-and-score, publishing and metrics sync. Plus build-voice, which builds a voice profile from dictated samples one register at a time. Optional hooks wire in a local markdown vault.",
   "author": {
     "name": "Brian Brooksby",

@@ -27,7 +27,7 @@ Used if present: `voice.newsletter_voice_path`, `content.polish.structure_humani
 
 The scorer's model is LinkedIn engagement, not email, so newsletters are not scored. Run, in order:
 
-1. **Voice pass.** Align to `voice.sources` — `about-me.md`, `voice.md`, and `anti-ai-writing.md`, the general voice that applies to every asset. (`newsletter-voice.md` is deliberately not in `voice.sources`; it is the Substack register and is applied at step 3 only.) Operator not marketer, blunt, short declaratives, opens in the problem, ends on the work. Metrics over adjectives.
+1. **Voice pass.** Align to `voice.sources` — `about-me.md`, `voice.md`, and `voice-exemplars.md`, the general voice that applies to every asset. (`newsletter-voice.md` is deliberately not in `voice.sources`; it is the Substack register and is applied at step 3 only. **`anti-ai-writing.md` is deliberately not in `voice.sources` either** — it is reached through `voice.style_guide_path` and is the audit gate at step 4, not a drafting source. Loading it in both places pays for it twice.) Operator not marketer, blunt, short declaratives, opens in the problem, ends on the work. Metrics over adjectives.
 2. **Word-level humanizer (`surface-humanizer`).** Invoke the `word_humanizer_skill` — shipped in this plugin as `brooksby-ops:surface-humanizer`. It runs the seven-pass word, phrase, punctuation, and rhythm sweep against `anti-ai-writing.md`. If the skill cannot be found (a partial install), do the pass inline against `anti-ai-writing.md` instead and say which path you used. Never skip the pass.
 3. **newsletter-voice.** Apply the newsletter register from `voice.newsletter_voice_path` (`newsletter-voice.md`). **Substack issues only** — never run this on a LinkedIn post.
 
@@ -41,7 +41,7 @@ The scorer's model is LinkedIn engagement, not email, so newsletters are not sco
 
 Run, in order:
 
-1. **Voice pass.** Same voice sources; Brian's published LinkedIn style — short lines, specific tool names, closing question.
+1. **Voice pass.** Same voice sources — `about-me.md`, `voice.md`, `voice-exemplars.md`; `anti-ai-writing.md` arrives at step 4, not here. Brian's published LinkedIn style — short lines, specific tool names, closing question.
 2. **Structure humanizer (`stay-human`).** Fix structural AI tells — narrative shape, predictable arcs — not just words. Invoke the `structure_humanizer_skill` (default `stay-human`). **`stay-human` is an account-level skill whose own rules specify British English. Brian writes American English, so that rule loses here** — run the spelling check below on its output, every time. This is the step the drift comes from.
 3. **Word-level humanizer (`surface-humanizer`).** Same as newsletter step 2.
 4. **anti-ai-writing audit.** Final read against the rulebook; fix, run the spelling check, and report.

@@ -81,7 +81,7 @@ List every change with links: the Calendar row (Posted + Live URL), the Content 
 - **Never fabricate a hook or quote** — pull from the draft, from Brian's supplied published copy, or leave the field alone.
 - **A stale Hook is correctable, in both places.** Supplied published copy beats a stored draft line. When you correct a Hook, correct it in the Content Calendar row *and* in the `published-posts-log.md` row. Report every Hook change with its before and after.
 - **Idempotency stops duplicates, not corrections.** A re-run that supplies new information updates the record; a re-run that supplies nothing new writes nothing.
-- Any prose written follows Brian's voice per `voice.sources` (about-me + voice.md + anti-ai-writing).
+- Any prose written follows Brian's voice per `voice.sources` (about-me + voice.md + voice-exemplars); `anti-ai-writing.md` is the audit gate, reached through `voice.style_guide_path`.
 
 Output contract (D:\Brain). Every note you create or edit in the capture
 folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):

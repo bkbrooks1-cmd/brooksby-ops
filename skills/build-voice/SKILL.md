@@ -31,6 +31,23 @@ Ask for and confirm: the subject's name, the output folder, and whether this is 
 
 ## Phase 0 — Intake and the contamination screen
 
+### Step 0 — Check whether a profile already exists. Stop if it does.
+
+**Before anything else, look for an existing voice profile.** Check `voice.sources` and `voice.style_guide_path` in config, and search the target folder and the connected project folders for `voice.md`, `about-me.md`, and `voice-exemplars.md`.
+
+**If any of them exists, stop and ask.** Do not run the contamination screen, do not collect samples, and do not write a file. Say what you found and where — filenames and paths only, and the version line if the file carries one in its first few lines. **Do not read further into it than that.** Then ask which of these is happening:
+
+- **A new subject** who happens to share a workspace with someone else's profile → confirm a separate output folder before continuing, and never read the existing profile as a template.
+- **A new register for an existing subject** → this is not a fresh build. Run Phase 2 only, and compile into the existing file rather than beside it.
+- **A rebuild of an existing profile** → confirm explicitly, archive the current file with a dated `-ARCHIVED` name first, and say which version is being replaced.
+- **A mistake** → stop.
+
+**Why this gate exists.** Phase 3 writes `about-me.md`, `voice.md`, and `voice-exemplars.md`. Run without this check on a subject who already has a profile, this skill produces a second file with the same name claiming the same authority — which is the exact failure the install phase below exists to prevent, manufactured by the tool that prevents it. **Pointers, not copies, applies to this skill's own output.** It was found on the first live run, on 2026-08-28, by running the skill rather than reviewing it.
+
+**Never resolve this by reading the existing profile and continuing.** A profile in the folder is evidence about a different person, or an earlier version of this one; either way it contaminates what the dictations are supposed to produce independently.
+
+---
+
 **The intake question is never "what have you published." It is "what have you written with no AI involved at all, and can you prove it."**
 
 Explain the reason in one line before asking, because subjects who understand it start flagging their own provenance and the process gets better fast: *approval is not authorship.* People approve and publish drafts containing habits they will reject the moment you show them the habit on its own.
@@ -254,6 +271,7 @@ State these plainly rather than implying coverage that does not exist.
 - **No law enters the file until it has been checked against every clean register.** Not named — checked.
 - **Decide ⬡ or ◆ before writing the rule down**, never after.
 - **Never ship an instance layer to a second subject.** Not with the names swapped, not as a starting template.
+- **Never write a profile beside an existing one.** If `voice.md`, `about-me.md`, or `voice-exemplars.md` already exists in the target, stop and ask — see Phase 0 step 0. Two files claiming to be the voice profile is the failure this skill's install phase exists to prevent.
 - **Run the contradiction sweep before calling any version done.**
 - **Never chain to `voice-builder`.** Its method is the one this skill exists to replace.
 - **Log every change, including trivial ones.**
