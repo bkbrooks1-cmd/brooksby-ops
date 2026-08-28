@@ -1,6 +1,6 @@
 ---
 name: capture
-description: Capture what came in since last time — recent Granola meetings into Notion as minutes, action items and status, and self-addressed idea emails from Gmail into the content vault, Notion Content Ideas, and Agent Ideas. Use when the user says "capture", "capture meetings", "capture my meetings", "capture my ideas", "pull my meetings", "write up my meetings", "meeting minutes", "sweep my inbox for ideas", or asks to turn recent calls or emailed notes into notes and tasks. Also runs as a step inside daily-checkin and monday-planner.
+description: Capture what came in since last time — recent Granola meetings into Notion as minutes and action items, and self-addressed idea emails from Gmail into the content vault and Notion. Use when the user says "capture", "capture meetings", "capture my meetings", "capture my ideas", "pull my meetings", "write up my meetings", "meeting minutes", "sweep my inbox for ideas", or asks to turn recent calls or emailed notes into notes and tasks. Also runs inside daily-checkin and monday-planner.
 ---
 
 # Capture

@@ -1,6 +1,6 @@
 ---
 name: build-voice
-description: Build a voice profile for a person from dictated samples, one register at a time — the cut-don't-compose method. Use when the user says "build a voice profile", "run the voice build", "build [name]'s voice", "run a register run", "cut this dictation", "voice engagement for a client", or asks to teach Claude to write like a specific person. Also use when an existing voice file is producing drafts that do not sound like its subject. Screens source material for AI contamination first, runs one register at a time, and gates every law against every clean register before it enters the file.
+description: Build a voice profile from dictated samples, one register at a time — the cut-don't-compose method. Use when the user says "build a voice profile", "run the voice build", "build [name]'s voice", "run a register run", "cut this dictation", "voice engagement for a client", or asks to teach Claude to write like a specific person. Also use when an existing voice file produces drafts that do not sound like their subject. Screens sources for AI contamination first.
 ---
 
 # Build voice
