@@ -76,7 +76,7 @@ Never present a scraped or guessed number as if it were the private analytics. I
 - **Never fabricate a metric.** Public counts come from the actor; private numbers come from Brian. If a source is unavailable, say so and leave the field blank.
 - **A zero is suspect.** If every count in a run returns 0, treat it as a failed pull, not a real result. Check the `fields` projection first.
 - **Same-sync principle as mark-published:** Calendar and metrics-log update together, never one without the other.
-- **No client names in the vault.** OFP never enters `D:\Brain`.
+- **No client names in the vault.** Any engagement listed in `firewall.walled_engagements` never enters it.
 - Confirm before writing Notion; write the vault log under the output contract.
 
 Output contract (D:\Brain). Every note you create or edit in the capture
@@ -85,5 +85,6 @@ folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
   created (YYYY-MM-DD), status (inbox|active|drafted|published|archived), tags
 - one upward wikilink to the folder's _index.md, folder-qualified:
   [[02-Ideas/_index|↑ Ideas]] — never a bare [[_index]]
-Never write into _ref-* folders or project junctions. Never touch OFP.
+Never write into _ref-* folders or project junctions. Never touch a walled
+engagement (`firewall.walled_engagements`).
 Never leave a note without frontmatter or a hub link.

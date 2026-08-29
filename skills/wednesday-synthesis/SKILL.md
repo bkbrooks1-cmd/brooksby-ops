@@ -52,7 +52,7 @@ When Brian chooses one:
 - **Never pitch a rerun as new.** Check the theme map's "already covered" list and the published log first.
 - **Never name a source without linking it.** Every clip or idea cited as supporting material is a wikilink, in the proposal and in the `sources:` frontmatter. Provenance that only exists in the chat transcript is lost the moment the session ends — that is how the vault ended up with 43 clips and zero backlinks.
 - **Borrow ideas with attribution, never prose.** If an angle builds on someone else's post, credit them; never absorb their sentences.
-- **Sanitize.** No client names, figures, or confidential detail — the vault is public-facing raw material. OFP never feeds content.
+- **Sanitize.** No client names, figures, or confidential detail — the vault is public-facing raw material. An engagement listed in `firewall.walled_engagements` never feeds content.
 - Propose Notion/theme-map writes before making them.
 
 Output contract (D:\Brain). Every note you create or edit in the capture
@@ -63,5 +63,6 @@ folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
 - one upward wikilink to the folder's _index.md, folder-qualified:
   [[02-Ideas/_index|↑ Ideas]] — never a bare [[_index]]
 - wikilinks to related notes you're confident about
-Never write into _ref-* folders or project junctions. Never touch OFP.
+Never write into _ref-* folders or project junctions. Never touch a walled
+engagement (`firewall.walled_engagements`).
 Never leave a note without frontmatter or a hub link.

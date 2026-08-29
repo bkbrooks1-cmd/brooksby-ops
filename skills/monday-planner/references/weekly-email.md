@@ -48,6 +48,8 @@ Field notes:
 
 The planner will draft that engagement's email every Monday, in the user's voice, for review and manual send. It never sends.
 
-## Note on the original OFP format
+## Note on engagement templates
 
-The OFP "Monday Check-in" (teal week-N block, OFP ERP team distribution, Calibri/Aptos styling) is simply the first engagement template — it lives in the OFP project folder and is wired in through that engagement's `weekly_email` block. It is engagement data, not part of the shipped product, so it is not committed to this repo.
+The first template this pattern was built from is an existing client's weekly check-in. Its layout, distribution list, and typography are engagement data — they live in that engagement's project folder and are wired in through its `weekly_email` block, not committed here.
+
+That includes describing them. A named format, a named distribution, a named styling convention identifies the engagement as surely as the name does, so this file describes the mechanism and nothing about any particular client.

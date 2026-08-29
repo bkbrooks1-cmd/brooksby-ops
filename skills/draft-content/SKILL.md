@@ -85,7 +85,7 @@ Trigger: "derive N posts" (or "cut the posts"). Only after Phase 1 is finalized.
 - **Respect the post count.** Derive exactly what Brian asked for.
 - **Borrow ideas with attribution, never prose.**
 - **Audit against `anti-ai-writing.md`** before calling any draft done. Verify experiential claims.
-- **Sanitize.** No client names or confidential detail. OFP never enters the vault — including in provenance or sourcing notes. Documenting the exception is not an exception.
+- **Sanitize.** No client names or confidential detail. An engagement listed in `firewall.walled_engagements` never enters the vault — including in provenance or sourcing notes, and including in the text of a rule describing the wall. Documenting the exception is not an exception.
 
 Output contract (D:\Brain). Every note you create or edit in the capture
 folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
@@ -96,5 +96,6 @@ folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
   [[04-Drafts/_index|↑ Drafts]] for everything under 04-Drafts, both
   subfolders included — never a bare [[_index]], never a subfolder index
 - wikilinks to related notes you're confident about
-Never write into _ref-* folders or project junctions. Never touch OFP.
+Never write into _ref-* folders or project junctions. Never touch a walled
+engagement (`firewall.walled_engagements`).
 Never leave a note without frontmatter or a hub link.

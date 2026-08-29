@@ -77,7 +77,7 @@ List every change with links: the Calendar row (Posted + Live URL), the Content 
 - **Manual publishing only.** This skill records what Brian already posted; it never posts anything.
 - **Confirm before writing Notion.** Propose all four updates, write on one yes.
 - **Idempotent.** Never create a duplicate Calendar row or log line; re-running the same command is safe.
-- **No client names in the vault.** Never write confidential or engagement detail into the logs. OFP never appears in `D:\Brain`.
+- **No client names in the vault.** Never write confidential or engagement detail into the logs. An engagement listed in `firewall.walled_engagements` never appears there.
 - **Never fabricate a hook or quote** — pull from the draft, from Brian's supplied published copy, or leave the field alone.
 - **A stale Hook is correctable, in both places.** Supplied published copy beats a stored draft line. When you correct a Hook, correct it in the Content Calendar row *and* in the `published-posts-log.md` row. Report every Hook change with its before and after.
 - **Idempotency stops duplicates, not corrections.** A re-run that supplies new information updates the record; a re-run that supplies nothing new writes nothing.
@@ -91,5 +91,6 @@ folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
 - one upward wikilink to the folder's _index.md, folder-qualified:
   [[02-Ideas/_index|↑ Ideas]] — never a bare [[_index]]
 - wikilinks to related notes you're confident about
-Never write into _ref-* folders or project junctions. Never touch OFP.
+Never write into _ref-* folders or project junctions. Never touch a walled
+engagement (`firewall.walled_engagements`).
 Never leave a note without frontmatter or a hub link.

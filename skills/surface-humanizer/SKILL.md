@@ -88,7 +88,7 @@ Run every surviving sentence through the rulebook's filter:
 - **Keep the voice's deliberate breaks.** Sentence fragments, sentences opening with And or But, and one-sentence paragraphs are Brian's, not AI tells. Do not normalize them out.
 - **Keep concession and anticipatory reassurance.** Both read as hedging to a hedge sweep and neither is one. Concession narrows a claim right after making it and is the argument working — removing it to make a piece punchier is a defect. Reassurance answers a worry the *reader* has rather than weakening a claim the writer is making. The full carve-outs are in `voice.md`; load it if this skill was invoked on its own.
 - **The rulebook wins on anything it covers that this file does not.** Where the two disagree on a *limit*, the stricter one wins: this file's zero-em-dash rule is deliberately tighter than the rulebook's one-per-500-words, and it stands. Where they disagree on a *rule*, the rulebook is right and this file needs updating.
-- **No client names.** OFP never appears in any draft or in `D:\Brain`.
+- **No client names.** An engagement listed in `firewall.walled_engagements` never appears in a draft or in the vault.
 
 ## Output
 

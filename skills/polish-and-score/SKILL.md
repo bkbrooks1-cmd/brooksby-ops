@@ -68,4 +68,4 @@ For each draft: the revised text, a short list of the changes each stage made, a
 - **Voice is Brian's, not generic.** The hashtag line in `voice.md` reflects an old sample set — follow current practice (hashtags on LinkedIn posts) unless Brian says otherwise.
 - **Never invent a number, a client, or an anecdote** to fill a gap a pass opened. Flag it for Brian instead.
 - **Audit against `anti-ai-writing.md`** is the non-negotiable final step of both chains.
-- Sanitize: no client names or confidential detail; OFP never enters the vault, including in provenance notes.
+- Sanitize: no client names or confidential detail; an engagement listed in `firewall.walled_engagements` never enters the vault, including in provenance notes.

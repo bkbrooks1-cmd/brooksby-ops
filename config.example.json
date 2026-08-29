@@ -50,7 +50,9 @@
     "render_daybook": true
   },
   "firewall": {
-    "no_connector_accounts": []
+    "_comment": "no_connector_accounts: accounts no connector may act on. walled_engagements: engagement names that must never reach the content vault — not in drafts, not in provenance or sourcing notes, not in the text of a rule describing the wall. Skills read this list; they never name a walled engagement in their own body. Also check that nothing junctions a project folder into the vault root: on Windows, `dir /al <vault root>` lists every junction beside its target, and no recursive scan traverses one.",
+    "no_connector_accounts": [],
+    "walled_engagements": []
   },
   "capture": {
     "lookback": "last_week",
