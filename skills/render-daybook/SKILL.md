@@ -36,7 +36,7 @@ The same rule applies to any connector added for a single instance: default off,
 
 One query per Notion data source, maximum. **Notion is on the Business plan — querying across multiple data sources returns `entitlement_required` and is unavailable.** Every join happens in the render logic, not in Notion. This is a standing constraint for the whole OS.
 
-1. **Connector health** — run the probes in `references/connector-health.md` before anything else. Their results drive the health band and decide which tiles degrade.
+1. **Connector health** — run the probes in `${CLAUDE_PLUGIN_ROOT}/references/connector-health.md` before anything else. Their results drive the health band and decide which tiles degrade.
 2. **Notion Tasks** — `collection://{notion.tasks_db}`, one query, `Status != 'Done'` or `Status IS NULL`. Select only the columns needed: id, url, Name, Type, Priority, Status, Source, Engagement, Meeting, `date:Due date:start`, createdTime. Relation columns return JSON arrays of page URLs, not names — resolve them against the Engagements and Meetings results.
 3. **Notion Engagements** — `collection://{notion.engagements_db}`, one query. Select id, url, Client, Status, Billing model, Rate. Do not `SELECT *`: the Tasks and Meetings relation columns on this table are hundreds of URLs long and will blow the response budget.
 4. **Notion Meetings** — `collection://{notion.meetings_db}`, one query, most recent rows. Used to resolve the Meeting relation on tasks.
@@ -81,7 +81,7 @@ An **Unassigned** group catches tasks with no engagement, and renders last. Unde
 
   Match a prep task to an event by the `Meeting` relation first. Prep tasks are usually created before the meeting page exists, so the relation is often empty — fall back to the naming convention `build-prep` writes: `Prep: <meeting name> (<Day M/D H:MM>)`. Match the event summary inside the task name.
 
-- **Connector health** — renders only when something is wrong. See `references/connector-health.md` for the band's contents.
+- **Connector health** — renders only when something is wrong. See `${CLAUDE_PLUGIN_ROOT}/references/connector-health.md` for the band's contents.
 
 ### Band 3 — deliverable radar
 
@@ -119,5 +119,5 @@ Artifact HTML streams token by token. A large render flickers and truncates.
 - The one write it makes anywhere is `daybook.artifact_id` back into `solo-os-config.json`, once, after the first successful create.
 - A failed source means a smaller Daybook, not a silent one. A tile whose connector is down renders its last known value with a muted "as of" note; it never blanks and it never shows a zero it did not measure.
 - Never invent a number. If a source returned nothing, say the source returned nothing.
-- Accounts in `firewall.no_connector_accounts` are never connected. The Daybook reads the vault and never writes to it; no client material reaches the vault through this skill.
+- Accounts in `firewall.no_connector_accounts` are never connected. The Daybook touches no content storage at all — it reads Tasks, Engagements, Meetings, and the calendar, and the only thing it ever writes is `daybook.artifact_id` — so no client material can reach the content system through this skill on either backend. An engagement listed in `firewall.walled_engagements` still never appears on a tile.
 - `solo-os-config.json` is live and private. Never print it, paste it into a deliverable, or copy values out of it into documentation.

@@ -18,7 +18,9 @@ Required keys: `notion.week_plans_page`, `notion.tasks_db`, `notion.leads_db`, `
 
 `notion.week_plans_page` is where the finished plan lands. It is the same page `friday-wrap` writes wraps to, so plans and wraps sit together in date order. If that key is absent, fall back to `notion.home_page` and say so in the output.
 
-Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables and the roadmap slot (section 6 below); `content.theme_map_path` and `content.default_post_count` are used if set. If absent, skip everything content-related — no error, no mention.
+Optional: a `content` block (see config.example.json). If present, the plan carries the standing content deliverables and the roadmap slot (section 6 below); `content.default_post_count` is used if set. If absent, skip everything content-related — no error, no mention.
+
+**Storage.** The content section names no path. It calls named operations in `${CLAUDE_PLUGIN_ROOT}/references/content-storage.md`, which holds one procedure per backend.
 
 ## Engagement routing
 
@@ -49,12 +51,12 @@ Create a sub-page of the Weekly Plans and wraps page (page_id `{notion.week_plan
 3. **Top priorities** — three to five, drawn from due tasks, overdue items, and meeting prep. Outcome phrasing, not activity phrasing.
 4. **Tasks due this week** — linked task list by day.
 5. **Pipeline** — leads needing action this week, each with its next action. Flag leads missing a next action.
-6. **Content** — only if a `content` block exists in config. Division of labor: Notion owns tasks and calendar; the content vault owns drafts and research. First, if `content.theme_map_path` is set, read it and open this section with the **roadmap slot**: one line naming the theme the forward map has queued for this week (series + working theme), so the week's content aims at something. Then list the standing deliverables, each with the vault path where its draft lives:
-   - "Newsletter #N" — N = next issue number, inferred from `content.newsletter_drafts_path` (ask if unclear). Path: that folder.
-   - "LinkedIn posts xN" — N derived posts from the newsletter, where N = `content.default_post_count` (default 3); Brian sets the actual count at draft time. Path: `content.linkedin_drafts_path`.
-   - "Metrics log" — the weekly numbers entry. Path: `content.metrics_log_path` if set, else the vault root.
+6. **Content** — only if a `content` block exists in config. Division of labor: Notion owns tasks and the calendar; the content system owns drafts and research. First, read **the theme map** and open this section with the **roadmap slot**: one line naming the theme the forward map has queued for this week (series + working theme), so the week's content aims at something. Then list the standing deliverables, each linked to where its draft will live:
+   - "Newsletter #N" — N = the next issue number from **list drafts** (ask if unclear).
+   - "LinkedIn posts xN" — N derived posts from the newsletter, where N = `content.default_post_count` (default 3); the user sets the actual count at draft time.
+   - "Metrics log" — the weekly numbers entry.
 
-   Also check both drafts folders for notes still at `status: drafted` from prior weeks and flag them here as unpublished. Omit this section entirely when no `content` block exists.
+   Then run **list drafts** again for anything still at `status: drafted` from prior weeks and flag it here as unpublished. Omit this section entirely when no `content` block exists.
 7. **Meeting capture** — only if Granola is connected: run the capture routine (canonical steps live in the capture skill) for last week's meetings. For each meeting not already in the Meetings DB, propose a meeting page with summary-based minutes and its action items, infer the engagement (confirm if unsure), and create on confirmation. Fold the resulting action items into "Tasks due this week" and "Carryover" above. Omit this section entirely when Granola is not connected.
 8. **Carryover** — overdue open tasks rolled in from prior weeks.
 
@@ -64,7 +66,7 @@ For each meeting this week that plausibly needs preparation (client meetings, an
 
 Link the identified client engagement. If none is identifiable, route by the bucket rule rather than leaving it blank: a prep task for a non-client meeting goes to Business Development when there is a named opportunity behind it, or Networking when it is relationship maintenance. Never null. If more than five prep tasks would be created, list them and ask before creating.
 
-If a `content` block exists in config, also create the three standing content Tasks for the week — "Newsletter #N", "LinkedIn posts xN" (N = `content.default_post_count`, default 3), "Metrics log" — each with Type = Deliverable, Source = Planning, Due date = this Friday, Engagement = the Marketing Content bucket (`notion.internal_engagements.marketing_content`), and the draft's vault path in the task body. Dedupe first: if an open task with the same name already exists (a carryover), roll it instead of creating a twin.
+If a `content` block exists in config, also create the three standing content Tasks for the week — "Newsletter #N", "LinkedIn posts xN" (N = `content.default_post_count`, default 3), "Metrics log" — each with Type = Deliverable, Source = Planning, Due date = this Friday, Engagement = the Marketing Content bucket (`notion.internal_engagements.marketing_content`), and a link to where the draft will live in the task body. Dedupe first: if an open task with the same name already exists (a carryover), roll it instead of creating a twin.
 
 ## Output 3: weekly email draft(s)
 

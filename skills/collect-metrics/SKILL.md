@@ -1,11 +1,11 @@
 ---
 name: collect-metrics
-description: Gather this week's content metrics and write them to every tracker at once. Use when Brian says "collect my metrics", "collect this week's metrics", "log the numbers", or as the metrics step inside the Friday wrap. Auto-pulls the LinkedIn counts that are public, prompts Brian for the private ones and the Substack numbers, then writes them to the Notion Content Calendar rows and the vault metrics-log together.
+description: Gather this week's content metrics and write them to every tracker at once. Use when the user says "collect my metrics", "collect this week's metrics", "log the numbers", or as the metrics step inside the Friday wrap. Auto-pulls the LinkedIn counts that are public, prompts the user for the private ones and the Substack numbers, then writes them to the Notion Content Calendar rows and the metrics log together.
 ---
 
 # Collect metrics
 
-Turn the weekly metrics chore into one pass. The honest constraint: some numbers are public (a scraper can read them) and some are private to Brian (visible only when he's logged in). This skill automates the public half, prompts for the private half, and writes everything to both trackers so the numbers never live in only one place. Next Wednesday's synthesis reads `metrics-log.md` — that's the loop closing.
+Turn the weekly metrics chore into one pass. The honest constraint: some numbers are public (a scraper can read them) and some are owner-only (visible just to the account holder, logged in). This skill automates the public half, prompts for the private half, and writes everything to every tracker so the numbers never live in only one place. Next Wednesday's synthesis reads the metrics log — that's the loop closing.
 
 ## Config
 
@@ -14,22 +14,24 @@ This skill reads instance values from `solo-os-config.json`. Locate it by search
 If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before collecting metrics."
 
-Required keys: `notion.content_db`, `content.metrics_log_path`.
+Required keys: `notion.content_db`, `content.backend`.
 Used if present: `content.metrics.apify_linkedin_actor`, `content.metrics.linkedin_profile_url` (the actor's input; if it is absent, say so and ask once rather than guessing a handle), `content.metrics.linkedin_auto_fields`, `content.metrics.linkedin_manual_fields`, `content.metrics.substack_manual_fields`.
+
+**Storage.** The metrics log is reached through named operations in `${CLAUDE_PLUGIN_ROOT}/references/content-storage.md`. The Content Calendar is Notion on both backends — that is the pipeline of record either way, so `notion.content_db` is read directly, not through the contract.
 
 Note: `content.metrics.apify_linkedin_actor` is read by this skill only. The account-level `post-scorer` skill hardcodes the same actor at its step 2 and does not read config. Change the config key and post-scorer keeps using its literal. Keep the two in sync by hand until post-scorer is brought into the plugin.
 
 ## What can and cannot be automated (be honest about this)
 
 - **LinkedIn — public, automatable:** reactions, comments, reposts. These show on the public post and can be pulled with an Apify actor.
-- **LinkedIn — private, manual:** **impressions and profile views are owner-only** — LinkedIn shows them only to Brian under "View analytics" on each post. No compliant scraper reads them. Prompt Brian.
-- **Substack — manual:** Substack has no official public API. Opens, open rate, and clicks live in the dashboard; subscriber totals are exportable as CSV. Prompt Brian, or read a CSV he drops in.
+- **LinkedIn — private, manual:** **impressions and profile views are owner-only** — LinkedIn shows them only to the account holder under "View analytics" on each post. No compliant scraper reads them. Prompt the user.
+- **Substack — manual:** Substack has no official public API. Opens, open rate, and clicks live in the dashboard; subscriber totals are exportable as CSV. Prompt the user, or read a CSV they drop in.
 
 Never present a scraped or guessed number as if it were the private analytics. If Apify isn't configured or fails, collect everything by prompt instead and say so.
 
 ## The routine
 
-1. **Find this week's posted pieces.** Query the Content Calendar (`collection://{notion.content_db}`) for rows with `Status = Posted` and a `Post date` in the last 7 days (or the window Brian names). Collect their `Live URL`s.
+1. **Find this week's posted pieces.** Query the Content Calendar (`collection://{notion.content_db}`) for rows with `Status = Posted` and a `Post date` in the last 7 days (or the window the user names). Collect their `Live URL`s.
 
 2. **Auto-pull the public LinkedIn counts.** If `content.metrics.apify_linkedin_actor` is set, run it against `content.metrics.linkedin_profile_url` and pull the full result set. If that key is missing, ask for the profile URL once and say it belongs in config. Then match actor results to Calendar rows **by numeric URN, never by URL string** — see below. If the actor is not set or the run fails, note it and fall back to prompting.
 
@@ -57,13 +59,13 @@ Never present a scraped or guessed number as if it were the private analytics. I
 
 3. **Report the match count before writing.** State "matched N of M posted rows" and name every row that did not match, with its stored URL. A partial match is a result to be reported, never a result to be rounded up.
 
-4. **Prompt for the private numbers**, batched in one clean list so Brian fills them fast:
+4. **Prompt for the private numbers**, batched in one clean list so the user fills them fast:
    - Per LinkedIn post: impressions, profile views (from "View analytics").
    - Per Substack issue: opens, open rate, new subscribers (from the Stats page) — or accept a subscriber CSV.
 
-5. **Write to both trackers, together:**
+5. **Write to every tracker, together:**
    - **Content Calendar row** (per piece): set `Impressions`, `Reactions`, `Comments`, `Reposts`, `Profile views` (LinkedIn) and `Opens` (Substack) from what was gathered; add a one-line `Performance notes` read.
-   - **`metrics-log.md`** (`content.metrics_log_path`): append this week's block in the file's existing format — one row per piece with the same numbers — under a `## Week of YYYY-MM-DD` heading, plus a one-line "Read:" takeaway (what beat what, and why).
+   - **The metrics log** — **append to a log**: this week's entry, one row per piece with the same numbers, plus a one-line "Read:" takeaway (what beat what, and why). The operation owns the format and says where the entry and the takeaway land on this backend; on `notion` they are the row you just wrote and the week's wrap page, so this is not a second copy of the numbers.
 
 6. **Report** every write with links, and name anything still missing (e.g. a post whose 7-day window hasn't closed) so it gets picked up next week.
 
@@ -73,18 +75,11 @@ Never present a scraped or guessed number as if it were the private analytics. I
 - **One actor result per Calendar row.** If a share-form ID matches two results, it is a repost and its original. Take the one whose `activity_urn` matches, else the `regular` one. Never add them together.
 - **Never pass `fields` to Apify `get-dataset-items`.** It strips nested `stats` and returns zeros without raising an error.
 - **Report the match count.** "Matched N of M" every run. If N is less than M, name the misses.
-- **Never fabricate a metric.** Public counts come from the actor; private numbers come from Brian. If a source is unavailable, say so and leave the field blank.
+- **Never fabricate a metric.** Public counts come from the actor; private numbers come from the user. If a source is unavailable, say so and leave the field blank.
 - **A zero is suspect.** If every count in a run returns 0, treat it as a failed pull, not a real result. Check the `fields` projection first.
-- **Same-sync principle as mark-published:** Calendar and metrics-log update together, never one without the other.
-- **No client names in the vault.** Any engagement listed in `firewall.walled_engagements` never enters it.
-- Confirm before writing Notion; write the vault log under the output contract.
+- **An empty field is `pending`, not zero.** A number nobody has pulled yet is unknown. Never write 0 to stand for "not collected."
+- **Same-sync principle as mark-published:** the Calendar and the metrics log update together, never one without the other.
+- **No client names in the content system.** Any engagement listed in `firewall.walled_engagements` never enters it, on either backend.
+- Confirm before writing.
 
-Output contract (D:\Brain). Every note you create or edit in the capture
-folders (00-Inbox, 01-Clips, 02-Ideas, 03-Claude-Sessions, 04-Drafts):
-- frontmatter: type (clip|idea|draft|session|reference|hub),
-  created (YYYY-MM-DD), status (inbox|active|drafted|published|archived), tags
-- one upward wikilink to the folder's _index.md, folder-qualified:
-  [[02-Ideas/_index|↑ Ideas]] — never a bare [[_index]]
-Never write into _ref-* folders or project junctions. Never touch a walled
-engagement (`firewall.walled_engagements`).
-Never leave a note without frontmatter or a hub link.
+Storage discipline is not restated here. **append to a log** and **read the metrics log** in `${CLAUDE_PLUGIN_ROOT}/references/content-storage.md` own the format, the idempotency key, and the firewall check on both backends. Read the operation; do not reconstruct it from memory.

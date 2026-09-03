@@ -7,7 +7,10 @@
   },
   "voice": {
     "name": "YOUR FIRST NAME",
+    "_paths_note": "Every path in this block is relative to the project folder that holds solo-os-config.json — 'About Me/voice.md', never 'C:/Users/.../About Me/voice.md'. The config travels with the folder, so an absolute path breaks the moment the folder moves or the OS is installed for someone else. Resolve these against the folder the config was loaded from, not against the working directory.",
     "style_guide_path": "About Me/anti-ai-writing.md",
+    "register": "none",
+    "_register_note": "Default publishing register: 'linkedin', 'newsletter', or 'none'. Used by polish-and-score only to pick a chain when the asset type is genuinely ambiguous — an explicit target on the draft always wins, and 'none' means ask rather than guess. A user who publishes to both channels leaves this 'none'.",
     "sources": [
       "About Me/about-me.md",
       "About Me/voice.md",
@@ -49,6 +52,38 @@
     "run_capture": true,
     "render_daybook": true
   },
+  "daybook": {
+    "_comment": "Read by render-daybook, and by daily-checkin for the connector probes. Onboarding asks for the timezone in Step 3 and writes this block in Step 4; every other value ships at its default and is edited by hand. artifact_id is written once, on the first successful create_artifact call, and read on every render after that — it is what keeps the artifact link stable.",
+    "_artifact_id_note": "Leave empty on a fresh install. It MUST end up a kebab-case Cowork artifact slug (mcp__cowork__create_artifact / update_artifact), NOT a claude.ai artifact UUID. Unattended and scheduled sessions do not get the Artifact tool at all, so a UUID here makes every automated render fail with nothing to update.",
+    "artifact_id": "",
+    "timezone": "America/New_York",
+    "stale_hours": 26,
+    "work_window_days": 7,
+    "connectors": [
+      "notion",
+      "google_calendar",
+      "gmail"
+    ],
+    "optional_connectors": [
+      "granola"
+    ],
+    "tiles": {
+      "status_strip": true,
+      "work_by_engagement": true,
+      "schedule": true,
+      "deliverable_radar": true,
+      "connector_health": true,
+      "revenue": false
+    },
+    "revenue": {
+      "_comment": "source accepts \"quickbooks\" or \"none\". This template ships \"none\" with tiles.revenue false, so a fresh install has zero QuickBooks dependency. Turn both on together if the user wants the tile.",
+      "source": "none",
+      "monthly_target": 0,
+      "target_basis": "invoiced",
+      "show_progress_bar": false,
+      "ar_overdue_days": 30
+    }
+  },
   "firewall": {
     "_comment": "no_connector_accounts: accounts no connector may act on. walled_engagements: engagement names that must never reach the content vault — not in drafts, not in provenance or sourcing notes, not in the text of a rule describing the wall. Skills read this list; they never name a walled engagement in their own body. Also check that nothing junctions a project folder into the vault root: on Windows, `dir /al <vault root>` lists every junction beside its target, and no recursive scan traverses one.",
     "no_connector_accounts": [],
@@ -64,7 +99,15 @@
     }
   },
   "_content_example": {
-    "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a local content vault: Notion owns tasks and calendar; the vault owns drafts and research. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), the drafts/vault-health checks in friday-wrap, and the content-engine skills (wednesday-synthesis, draft-content, polish-and-score, mark-published, collect-metrics). Omit the block entirely to run the OS without a content pipeline.",
+    "_note": "Optional. Add a 'content' block (this shape, without the underscore) to hook the OS into a content system — the store that holds clips, idea notes, drafts, and the logs. Notion owns tasks and the calendar either way. Enables the standing content deliverables in monday-planner, idea notes in capture (step 5c), the drafts and hygiene checks in friday-wrap, and the content-engine skills (wednesday-synthesis, draft-content, polish-and-score, mark-published, collect-metrics). Omit the block entirely to run the OS without a content pipeline.",
+    "backend": "notion",
+    "_backend_note": "Which store the content skills read and write: 'notion' (databases through the connector — the default, and what a new install should use) or 'vault' (markdown files on disk, the legacy option you opt into). Skills never branch on this themselves. They call the six named operations in references/content-storage.md, and that file gives each operation one vault procedure and one notion procedure — ten skills, one switch, zero half-branches. One backend is live at a time; a skill that reads one store and writes the other corrupts both. A content block present with this key absent is an error, not a default: the skills stop and ask rather than guess a store.",
+    "notion": {
+      "_comment": "Read only when backend = 'notion'. Onboarding provisions the Clips database and the Theme Map page and writes these IDs. The other content databases are addressed by their existing keys: notion.content_db (Content Calendar) and notion.content_ideas_db (Content Ideas). Clips schema and the field map: references/content-storage.md.",
+      "clips_db": "<clips data source id>",
+      "theme_map_page": "<theme map page id>"
+    },
+    "_vault_paths_note": "The ten path keys below are read only when backend = 'vault'. They stay documented here because the vault is a supported backend, not because a new install needs them — a notion install omits them entirely.",
     "vault_root": "D:/YourVault",
     "contract_path": "D:/YourVault/CONTRACT.md",
     "ideas_path": "D:/YourVault/02-Ideas",
@@ -77,6 +120,10 @@
     "vault_health_checklist": "D:/YourVault/Vault-Health-Checklist.md",
     "default_post_count": 3,
     "synthesis_lookback_days": 14,
+    "_series_note": "The content series in play. Must match the Series select options in the Content Calendar — skills read this list rather than naming series in their own body, so adding a series is a config edit, not a skill edit. A fresh install ships with Standalone only and the user adds their own.",
+    "series": [
+      "Standalone"
+    ],
     "polish": {
       "structure_humanizer_skill": "stay-human",
       "word_humanizer_skill": "surface-humanizer",

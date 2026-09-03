@@ -9,7 +9,7 @@ The two-minute view that keeps the plan honest between Mondays. Read fast, show 
 
 One command, three phases, in this order:
 
-1. **Capture** — pull in what arrived since last time, so the view is built on current data
+1. **Capture** — probe the connectors, then pull in what arrived since last time, so the view is built on current data
 2. **The today view** — meetings, tasks, email, deliverables
 3. **The Daybook** — refresh the snapshot, last, so it reflects everything the first two phases just wrote
 
@@ -23,6 +23,7 @@ If the file is missing, or any required key below is absent, stop and say:
 "solo-os-config.json not found (or missing key: <key>). Run onboarding to set up this OS before running the check-in."
 
 Required keys: `notion.tasks_db`, `notion.leads_db`, `notion.agent_ideas_db`, `notion.meetings_db`, `notion.engagements_db`, `notion.internal_engagements`, `email.monitored_addresses`, `firewall.no_connector_accounts`.
+Used if present: `daybook.connectors` and `daybook.optional_connectors` (the probe list for phase 1a), `checkin.run_capture`, `checkin.render_daybook`.
 
 Optional `checkin` block controls which phases run:
 
@@ -40,6 +41,36 @@ Both default to `true` when the block or a key is absent — the full run is the
 Every task this skill proposes carries an engagement. Never propose or create a task with a null Engagement. The rule, the four internal buckets, and how to pick between them live in `${CLAUDE_PLUGIN_ROOT}/references/engagement-routing.md` — read it before proposing tasks.
 
 ## Phase 1 — Capture
+
+### 1a. Connector health, before anything reads anything
+
+Run the probes in `${CLAUDE_PLUGIN_ROOT}/references/connector-health.md` **first, at the top of phase 1** — before capture, before the today view, before any source is read. This is the earliest point in the day the OS touches its connectors, so it is where a dead one has to surface. Failures print as the first lines of the run, in the three-fact form that file specifies. Healthy connectors get no line.
+
+The probe runs whether or not `checkin.run_capture` is `false`. Skipping capture skips the sweeps, not the health check.
+
+A connector that returns an empty result without throwing is the failure this catches, and it is the one that hid for six weeks.
+
+### 1b. The connector tracker
+
+A connector that fails the probe becomes a row in Tasks on the **first** failure, at low priority, and escalates on the second. The task is the state: the check-in keeps no memory of its own, so the record of yesterday's failure has to exist somewhere the run can read today. Writing it on strike one is what makes strike two knowable at all.
+
+**The task is keyed by name, and the name never changes:** `Connector watch: <connector>`. Everything volatile — how long it has been silent, when it was last good, what to do about it — lives in the body, refreshed on each pass. A name carrying a date cannot be deduped against, which would turn three weeks of a dead connector into twenty tasks.
+
+Every task this step writes carries Type = Admin, Source = Planning, Due date = today, and Engagement = the Business Admin bucket (`notion.internal_engagements.business_admin`). Never a null engagement, and never a client row — a dead connector is internal ops.
+
+Three branches. Read the open tasks first, then take exactly one per probed connector:
+
+1. **Probe fails, no open task** → **strike one.** Create `Connector watch: <connector>` at **Priority = P3**. Body carries the three facts from `${CLAUDE_PLUGIN_ROOT}/references/connector-health.md`: which connector, how long it has been silent, and the named fix. Say **"strike one"** in the run and name the task. Do not escalate anything on this pass — a single empty result can be a genuinely quiet day.
+
+2. **Probe fails, task already open** → **strike two: escalate and hard stop.** Raise the existing task to **Priority = P1**, roll its due date to today, and refresh the body's three facts with the current silence age. Never create a second task. Then fire the hard stop: print the failure at the top of the run, before anything else, and say plainly that this connector has now failed two consecutive check-ins and the data below it is incomplete. Two in a row is not a quiet day.
+
+3. **Probe passes, task still open** → **recovery.** Mark the task **Done** and append a one-line recovery note to its body: the connector name, the date it recovered, and how many check-ins it was down. Say so in the run. Closing the task is what resets the strike count — leave it open and the next failure reads as strike two when it is really strike one.
+
+A passing probe with no open task is the healthy case and produces nothing: no task, no line, no all-clear banner.
+
+The task write is the only thing this step creates. It never disconnects, reauthorizes, or repairs a connector; those are the user's to do, and the task body says so in the three-fact form.
+
+### 1c. Capture
 
 Skip if `checkin.run_capture` is `false`.
 
@@ -62,7 +93,7 @@ An emailed idea that also becomes a task is the failure mode to watch for. Captu
 
 Flag any source that fails; never silently omit it.
 
-0. **Connector health** — run the probes in the render-daybook skill's `references/connector-health.md` first. Failures print as the first line of the today view, in the three-fact form that file specifies. Healthy connectors get no line. A connector that returns an empty result without throwing is the failure this catches.
+Connector health already ran, at the top of phase 1. Do not probe again — carry its results forward, and let them decide which sources below are expected to be thin.
 
 1. **Google Calendar** (connector): today and tomorrow, all calendars.
 2. **Gmail** (connector): since the last check-in (default: last 24 hours). Unread or flagged threads and direct asks, including mail to any address in `email.monitored_addresses` (all forward here). Exclude threads carrying the capture processed label — phase 1 already handled those.
@@ -99,7 +130,7 @@ Render only after the user has confirmed the writes from phases 1 and 2. A Daybo
 ## Hard rules
 
 - Drafts only for anything leaving the building; the user sends. Accounts listed in `firewall.no_connector_accounts` are never connected.
-- A failed source means a smaller view, not a silent one: name the connector, how long it has been silent, and the fix, then continue. Canonical wording in `references/connector-health.md`.
+- A failed source means a smaller view, not a silent one: name the connector, how long it has been silent, and the fix, then continue. Canonical wording in `${CLAUDE_PLUGIN_ROOT}/references/connector-health.md`.
 - **Phase order is fixed: capture, then the today view, then the Daybook.** Each phase reads what the one before it wrote.
 - Never reimplement capture or the Daybook here. Call those skills. Two copies of a routine drift, and the copy inside another skill is the one nobody remembers to update.
 - Never let one phase's failure end the run. A dead connector in phase 1 still leaves a today view worth reading.

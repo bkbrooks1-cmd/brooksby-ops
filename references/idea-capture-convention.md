@@ -1,4 +1,4 @@
-# Idea capture convention — email to vault
+# Idea capture convention — email to the content system
 
 The rule for turning a self-addressed email into a note. One grammar, read by
 the Gmail sweep in `capture` step 0.
@@ -23,14 +23,16 @@ two words; the title is for the person.
 
 | Qualifier | Destination | Config key |
 |---|---|---|
-| `newsletter` | Newsletter topic idea | `content.ideas_path`/Newsletter-Topics |
-| `post` | LinkedIn post idea | `content.ideas_path`/LinkedIn-Posts |
-| `agent` | Notion Agent Ideas DB — never the vault | `notion.agent_ideas_db` |
-| `ref` | Personal reference shelf — outside the content system | `content.personal_ref_path` |
+| `newsletter` | Newsletter topic idea, Platform = Substack | via **write a note** |
+| `post` | LinkedIn post idea, Platform = LinkedIn | via **write a note** |
+| `agent` | Notion Agent Ideas DB — never the content system | `notion.agent_ideas_db` |
+| `ref` | Personal reference shelf — outside the content system | `capture.idea_capture.personal_ref_path` |
 
-A `Clip` with a content qualifier lands in `01-Clips` and the qualifier records
-which idea folder it feeds. An `Idea` with a content qualifier lands in the
-matching idea folder.
+A `Clip` with a content qualifier is written as a clip, and the qualifier records
+which idea it feeds. An `Idea` with a content qualifier is written as an idea
+carrying that platform. Both go through **write a note** in
+`references/content-storage.md`, which owns the destination on each backend —
+this file says what the mail means, not where it lands.
 
 ## Body
 
@@ -53,16 +55,16 @@ Clip ref: Marsham workout and food metrics
 
 ## Unrecognized subjects
 
-A missing or unknown qualifier is not an error. Route to `00-Inbox` with
-`status: inbox` and name it in the disposition. The convention must never lose
-a thought because the user was typing on a phone.
+A missing or unknown qualifier is not an error. Take the contract's unrecognized
+destination, mark it untriaged, and name it in the disposition. The convention
+must never lose a thought because the user was typing on a phone.
 
 ## Legacy subjects
 
 Mail sent before this convention used loose forms: `Post idea:`,
 `LinkedIn post idea-`, `Idea -`, `Clip-`, `Agent idea-`. The sweep matches these
 too, mapping `post idea`/`linkedin post idea` → `post`, `newsletter idea` → `newsletter`,
-`agent idea` → `agent`, and a bare `Idea`/`Clip` → unqualified (00-Inbox).
+`agent idea` → `agent`, and a bare `Idea`/`Clip` → unqualified (unrecognized).
 Do not remove legacy matching — the user's phone habits predate the rule.
 
 ## Dedupe
@@ -78,6 +80,8 @@ things twice. Match on the URL in the body before writing.
 ## Firewall
 
 Accounts in `firewall.no_connector_accounts` never feed content. If a captured
-idea names one, route it to Notion if it is an `agent` idea and generalize the
-client reference, or drop it if it was headed for the vault. The vault rule is
-absolute: no client names in the content vault, sanitized or not.
+idea names one, route it to Agent Ideas if it is an `agent` idea and generalize
+the client reference, or drop it if it was headed for the content system. The
+rule is absolute and backend-neutral: an engagement listed in
+`firewall.walled_engagements` never enters the content system, sanitized or not,
+on files or in a database.

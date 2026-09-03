@@ -1,205 +1,267 @@
-# Notion Schema — Provisioning Spec
+# Notion schema — rationale and property reference
 
-The seven databases the Solopreneur OS runs on, captured from the reference workspace. Onboarding recreates these in a new user's Notion, then writes the resulting data-source IDs into `solo-os-config.json`.
+The databases the Solopreneur OS runs on. **`SKILL.md` Step 2 is the
+provisioning procedure and it wins on any disagreement** — it is the
+dry-run-verified path, it is self-contained, and reading this file is optional.
+What lives here is the per-property detail and the reasoning behind it: what each
+column is for, which skill fills it, and which ones cannot be dropped.
 
-This is the source of truth for the schema. If a consuming skill needs a new property, add it here first, then update the skill.
+If a consuming skill needs a new property, add it here and to `SKILL.md` Step 2
+together. A property in one and not the other is how a fresh install ends up
+missing a column that some skill writes to silently.
 
 ---
 
-## Critical: build order (the relation web)
+## Build order — one ordered pass
 
-Several of the seven databases reference each other through two-way relations. A relation property cannot be created until the database it points to exists. So provisioning is a **two-pass** job:
+Provisioning is **a single ordered pass**, not a create-then-relate two-pass job.
+Each two-way relation is declared inline as
+`RELATION('<target-ds-id>', DUAL '<mirror name>')`, which auto-creates the
+correctly named mirror on the target. A relation can only point at a database
+that already exists, so the order below is what makes one pass possible.
 
-**Pass 1 — create all seven databases with their non-relation properties only.** Capture each new data-source ID.
-
-**Pass 2 — add the relation properties**, now that every target database exists. Notion two-way relations create the paired property on the other side automatically, so create each relation once from the side listed below; do not also create its mirror by hand.
-
-Relations to create in pass 2 (create once, from this side):
-
-| Create on | Property | Points to | Auto-creates mirror |
+| # | Database | Depends on | Config key |
 |---|---|---|---|
-| Tasks | Engagement | Engagements | Engagements → Tasks |
-| Tasks | Meeting | Meetings | Meetings → Action items |
-| Meetings | Engagement | Engagements | Engagements → Meetings |
-| Leads & Opportunities | Converted to | Engagements | Engagements → Source lead |
-| Content Ideas | Calendar post | Content Calendar | Content Calendar → Idea source |
+| 1 | Engagements | — | `notion.engagements_db` |
+| 2 | Meetings | Engagements | `notion.meetings_db` |
+| 3 | Tasks | Engagements, Meetings | `notion.tasks_db` |
+| 4 | Leads & Opportunities | Engagements | `notion.leads_db` |
+| 5 | Content Calendar | — | `notion.content_db` |
+| 6 | Agent Ideas | — | `notion.agent_ideas_db` |
+| 7 | Content Ideas | Content Calendar | `notion.content_ideas_db` |
+| 8 | Clips (conditional) | Content Calendar, Content Ideas | `content.notion.clips_db` |
 
-Agent Ideas is the only database with no relations — it is created complete in pass 1. Content Calendar and Content Ideas have their non-relation properties created in pass 1; the Content Ideas → Content Calendar relation is added in pass 2, once both exist.
+Engagements is created first and declares no outgoing relations — every relation
+property on it arrives as a mirror. Agent Ideas has no relations at all. Clips is
+created **only when `content.backend` is `"notion"`**; skip it entirely
+otherwise, and say which you did.
 
-If the connector's `create-view`/relation support turns out not to set the mirror name (e.g. it defaults to "Related to Tasks"), rename the mirror to match the names above so the skills find their columns.
+Never create a mirror by hand. If the connector fails to set a mirror's name and
+defaults it to something like "Related to Tasks", rename it to match the name in
+the DDL — the skills look that column up by name.
 
 ---
 
-## Database 1 — Tasks
+## 1 — Engagements
 
-Config key: `notion.tasks_db`. Title property: **Name** (title).
+Title: **Client**. The spine of the OS: every task, meeting, and action item
+links here, including non-client work.
 
-| Property | Type | Options / config |
+| Property | Type | Notes |
 |---|---|---|
-| Name | title | — |
-| Status | select | To do (red), In progress (yellow), Waiting (orange), Done (green) |
-| Type | select | Deliverable (blue), Prep (purple), Follow-up (yellow), Admin (gray), Networking (red) |
-| Priority | select | P1 (red), P2 (yellow), P3 (gray) |
-| Source | select | Meeting (blue), Email (purple), Planning (green), Ad hoc (gray), Brian (brown) |
-| Due date | date | — |
-| Engagement | relation → Engagements | pass 2 |
-| Meeting | relation → Meetings | pass 2 |
+| Client | title | — |
+| Status | select | Proposal, Active, Paused, Closed |
+| Billing model | select | T&M, Fixed, Retainer |
+| Rate | number (dollar) | — |
+| Start date | date | — |
+| Key contacts | text | — |
+| Place | text | see the limitation below |
+| Weekly report | checkbox | drives the weekly-report agent |
+| Tasks · Meetings · Source lead | relation mirrors | arrive automatically |
 
-Note: the **Source → "Brian"** option is voice/instance-specific. In the shipped template, generalize the label (e.g. "Owner" or the user's first name from `voice.name`).
+The four **internal engagement buckets** are rows in this database, not a
+separate concept. They carry no Status, Rate, Billing model, or Start date, and
+`Weekly report` stays unchecked — that emptiness is exactly what keeps them out
+of revenue reporting and the Status = Active views, including the deliverable
+radar. Routing rules live in `references/engagement-routing.md`.
 
----
+Known limitation: Notion's `place` property type cannot be created through DDL,
+so `Place` is provisioned as text. Converting it in the Notion UI afterward is
+optional and never setup-blocking.
 
-## Database 2 — Meetings
+## 2 — Meetings
 
-Config key: `notion.meetings_db`. Title property: **Name** (title).
+Title: **Name**. One page per captured meeting, minutes in the page body.
 
-| Property | Type | Options / config |
+| Property | Type | Notes |
 |---|---|---|
 | Name | title | — |
 | Date | date | — |
 | Attendees | text | — |
-| Granola link | url | — |
-| Engagement | relation → Engagements | pass 2 |
-| Action items | relation → Tasks | pass 2 (mirror of Tasks → Meeting; may be auto-created) |
+| Granola link | url | **the dedupe key**, and the path to the full transcript |
+| Engagement | relation → Engagements | mirror: `Meetings` |
+| Action items | relation mirror | from Tasks |
 
----
+`Granola link` carries the meeting id and is what `capture` step 2 dedupes on. A
+failed dedupe re-summarizes the meeting from scratch, so the duplicate usually
+carries a *different title for the same call* — which is why the audit query
+groups on this column and never on name or date.
 
-## Database 3 — Engagements
+## 3 — Tasks
 
-Config key: `notion.engagements_db`. Title property: **Client** (title).
+Title: **Name**. Everything the OS asks anyone to do.
 
-| Property | Type | Options / config |
+| Property | Type | Notes |
 |---|---|---|
-| Client | title | — |
-| Status | select | Proposal (yellow), Active (green), Paused (orange), Closed (gray) |
-| Billing model | select | T&M (blue), Fixed (purple), Retainer (green) |
-| Rate | number | format: dollar |
-| Start date | date | — |
-| Key contacts | text | — |
-| Place | place | — |
-| Weekly report | checkbox | drives the Wednesday weekly-report agent |
-| Tasks | relation → Tasks | pass 2 (mirror; may be auto-created) |
-| Meetings | relation → Meetings | pass 2 (mirror; may be auto-created) |
-| Source lead | relation → Leads & Opportunities | pass 2 (mirror; may be auto-created) |
+| Name | title | phrased as an outcome |
+| Status | select | To do, In progress, Waiting, Done |
+| Type | select | Deliverable, Prep, Follow-up, Admin, Networking |
+| Priority | select | P1, P2, P3 |
+| Source | select | Meeting, Email, Planning, Ad hoc, Owner |
+| Due date | date | — |
+| Engagement | relation → Engagements | mirror: `Tasks`. **Never null** |
+| Meeting | relation → Meetings | mirror: `Action items` |
 
-### The internal engagement buckets
+`Source` ships with **Owner** as the self-generated option. Rename it to the
+user's own preference if they want; do not ship anyone's first name as an option
+value.
 
-Engagements holds more than clients. **Every task in the OS belongs to an engagement** — a null Engagement is a defect, not a state — so non-client work needs somewhere to live. Four rows in this same table carry it:
+## 4 — Leads & Opportunities
 
-| Client (title) | Icon | Config key | Holds |
-|---|---|---|---|
-| Marketing Content | 📣 | `notion.internal_engagements.marketing_content` | LinkedIn posts, newsletter issues, the Wednesday engine, metrics logging, cadence seeding |
-| Business Admin | 🧾 | `notion.internal_engagements.business_admin` | Internal ops: tool and workspace cleanup, system maintenance, taxes, subscriptions |
-| Business Development | 🎯 | `notion.internal_engagements.business_development` | Prospect and referral follow-ups with a named opportunity but no engagement yet |
-| Networking | 🤝 | `notion.internal_engagements.networking` | Relationship maintenance with no specific opportunity |
+Title: **Name**.
 
-These rows carry **only a title and an icon**. Status, Rate, Billing model, and Start date stay empty and `Weekly report` stays unchecked. That emptiness is load-bearing: the `Status = Active` views and the revenue reporting key off those fields, and filling any of them drags an internal bucket into client reporting. Each page body carries a note saying so.
-
-Onboarding creates them in Step 2.4 and writes their page IDs into config. Full routing rules — including that client invoicing follow-through links to the *client* engagement, not Business Admin — are in `references/engagement-routing.md` at the plugin root.
-
----
-
-## Database 4 — Leads & Opportunities
-
-Config key: `notion.leads_db`. Title property: **Name** (title).
-
-| Property | Type | Options / config |
+| Property | Type | Notes |
 |---|---|---|
 | Name | title | — |
 | Company | text | — |
-| Stage | select | Lead (blue), Qualified (yellow), Proposal (orange), Won (green), Lost (gray) |
-| Source | select | LinkedIn (blue), Email inquiry (purple), Referral (green), Conversation (yellow), Calendly (orange) |
-| Estimated value | number | format: dollar |
+| Stage | select | Lead, Qualified, Proposal, Won, Lost |
+| Source | select | LinkedIn, Email inquiry, Referral, Conversation, Calendly |
+| Estimated value | number (dollar) | — |
 | Next action | text | — |
-| Next action date | date | — |
+| Next action date | date | friday-wrap flags these when past due |
 | Notes | text | — |
-| Converted to | relation → Engagements | pass 2 |
+| Converted to | relation → Engagements | mirror: `Source lead` |
 
----
+## 5 — Content Calendar
 
-## Database 5 — Content Calendar
+Title: **Title**. The post pipeline **and** the published log at once: a piece
+moves Idea → Drafted → Scheduled → Posted, or Drafted → Archived when it is
+killed rather than deferred. The full draft or final copy lives in the **page
+body**, never in a property.
 
-Config key: `notion.content_db`. Title property: **Title** (title). This is the post pipeline **and** the published log: a post moves Idea → Drafted → Scheduled → Posted, or Drafted → Archived when a piece is killed rather than deferred, the full draft/final copy lives in the **page body**, and analytics land in the properties once posted.
-
-| Property | Type | Options / config |
+| Property | Type | Filled by |
 |---|---|---|
 | Title | title | — |
-| Status | select | Idea (gray), Drafted (yellow), Scheduled (orange), Posted (green), Archived (red) |
-| Platform | select | LinkedIn (blue), Substack (orange), Both (purple) |
-| Series | select | Standalone (gray) — users add their own series options |
-| Series week | text | e.g. "Wk 2", "PM-1" |
-| Post date | date | — |
-| Live URL | url | the live link, set at publish by mark-published |
-| Hook | text | the first line / opening hook |
+| Status | select | Idea, Drafted, Scheduled, Posted, Archived |
+| Platform | select | LinkedIn, Substack, Both |
+| Series | select | ships with Standalone only; the user adds their own |
+| Series week | text | e.g. "Wk 2" |
+| Post date | date | mark-published |
+| Live URL | url | mark-published, at publish time |
+| Hook | text | the first line of the published piece |
 | Hashtags | text | — |
-| Impressions | number | analytics (LinkedIn, manual — owner-only) |
-| Reactions | number | analytics (LinkedIn, auto) |
-| Comments | number | analytics (LinkedIn, auto) |
-| Reposts | number | analytics (LinkedIn, auto) |
-| Profile views | number | analytics (LinkedIn, manual — owner-only) |
-| Opens | number | analytics (Substack, manual — dashboard) |
-| Performance notes | text | — |
-| Idea source | relation → Content Ideas | pass 2 (mirror of Content Ideas → Calendar post; may be auto-created) |
+| Impressions | number | collect-metrics — owner-only, manual |
+| Reactions | number | collect-metrics — public, auto |
+| Comments | number | collect-metrics — public, auto |
+| Reposts | number | collect-metrics — public, auto |
+| Profile views | number | collect-metrics — owner-only, manual |
+| Opens | number | collect-metrics — Substack, manual |
+| Performance notes | text | collect-metrics |
+| Idea source | relation mirror | from Content Ideas |
+| Source clips | relation mirror | from Clips, on the notion backend only |
 
-Note: **Series** ships with only "Standalone"; users add their own series names (the reference workspace uses List of Demands, Outgrown, PM Track). The full post copy is written in the page body, not a property. `Live URL` is set at publish time by the mark-published skill. The analytics columns split by how they're gathered: `Reactions`/`Comments`/`Reposts` are public LinkedIn counts (auto-pullable via Apify); `Impressions`/`Profile views` are owner-only LinkedIn analytics (manual); `Opens` is Substack (manual dashboard). The collect-metrics skill fills these.
+**The seven analytics-and-link columns are required, not optional.** `Live URL`,
+`Comments`, `Reposts`, `Profile views`, and `Opens` were missing from earlier
+provisioning, and the failure is silent: the writing skill has nowhere to put the
+number, writes what it can, and reports success. `Archived` is likewise a real
+status, not decoration — without it a killed piece has to be deleted or left
+looking scheduled.
 
----
+The analytics split by how they are gathered, which is why they are listed that
+way above: three are public counts a scraper can read, three are owner-only, and
+an empty one means *pending*, never zero.
 
-## Database 6 — Agent Ideas
+Whatever `Series` options the user ends up with go into `content.series` in
+config. Skills read series names from there and never from their own body.
 
-Config key: `notion.agent_ideas_db`. Title property: **Idea** (title). No relations.
+## 6 — Agent Ideas
 
-| Property | Type | Options / config |
+Title: **Idea**. No relations; created complete.
+
+| Property | Type | Notes |
 |---|---|---|
 | Idea | title | — |
-| Status | select | Backlog (gray), Next (yellow), Built (green), Dropped (red) |
-| Value | select | High (green), Medium (yellow), Low (gray) |
-| Effort | select | S (green), M (yellow), L (red) |
+| Status | select | Backlog, Next, Built, Dropped |
+| Value | select | High, Medium, Low |
+| Effort | select | S, M, L |
 | Problem it solves | text | — |
 | Trigger and data | text | — |
 
----
+This database is deliberately outside the content system. An `agent` idea
+captured from email lands here and never enters the content pipeline.
 
-## Database 7 — Content Ideas
+## 7 — Content Ideas
 
-Config key: `notion.content_ideas_db`. Title property: **Idea** (title). A backlog of LinkedIn/Substack article ideas with monetization angles; an idea graduates into a Content Calendar post via the relation.
+Title: **Idea**. The backlog of angles; an idea graduates into a Content Calendar
+post through the relation.
 
-| Property | Type | Options / config |
+| Property | Type | Notes |
 |---|---|---|
 | Idea | title | — |
-| Platform | select | LinkedIn (blue), Substack (orange), Both (purple) |
-| Status | select | Backlog (gray), Next (yellow), Drafting (blue), Promoted (green), Dropped (red) |
+| Platform | select | LinkedIn, Substack, Both |
+| Status | select | Backlog, Next, Drafting, Promoted, Dropped |
 | Hook | text | the premise / opening line |
-| Theme | text | freeform comma-separated tags (e.g. "Discovery, AI, Client story") |
+| Theme | text | freeform comma-separated tags |
 | Topic | text | — |
-| Angle | text | the specific hook or thesis |
-| Monetization | multi-select | Consulting lead-gen (green), Substack paid subs (orange), Product/course/workshop (purple) |
+| Angle | text | the specific thesis |
+| Monetization | multi-select | Consulting lead-gen, Substack paid subs, Product/course/workshop |
 | Monetization notes | text | — |
-| Priority | select | High (green), Medium (yellow), Low (gray) |
-| Effort | select | S (green), M (yellow), L (red) |
+| Priority | select | High, Medium, Low |
+| Effort | select | S, M, L |
 | Target date | date | — |
 | Notes | text | — |
-| Calendar post | relation → Content Calendar | pass 2 (auto-creates "Idea source" on Content Calendar) |
+| Calendar post | relation → Content Calendar | mirror: `Idea source` |
+| Source clips | relation → Clips | added with Clips, on the notion backend only |
 
-Note: the Platform and Monetization options are sensible starting defaults; a new user can adjust them to their own channels and business model.
+Platform and Monetization options are sensible starting defaults; a new user
+adjusts them to their own channels and business model.
+
+## 8 — Clips (conditional)
+
+Title: **Name**. Created **only when `content.backend` is `"notion"`**. Source
+material kept from elsewhere; the full clip text lives in the page body.
+
+| Property | Type | Notes |
+|---|---|---|
+| Name | title | — |
+| URL | url | **the dedupe key**: one URL is one clip |
+| Source | select | Substack, LinkedIn, Web |
+| Why | text | the one-line reason it was kept |
+| Captured | date | — |
+| Used in | relation → Content Calendar | mirror: `Source clips` |
+| Feeds ideas | relation → Content Ideas | mirror: `Source clips` |
+
+Both relations are required. Together they make provenance bidirectional: with
+`Used in` alone a clip can say what it became but not what idea it fed, and the
+"did this clip ever earn its keep" question stops being answerable as a query.
+The weekly hygiene check keys off exactly these two columns.
+
+`Source` carries the one piece of information a folder-based store encoded in its
+structure rather than its content.
+
+The authority for this schema, the field map, and the per-backend procedures is
+`references/content-storage.md`. If that file and this one disagree, that one
+wins.
 
 ---
 
 ## After provisioning
 
-1. Write each new data-source ID into `solo-os-config.json` under the matching `notion.*` key.
-2. Set `notion.home_page` to the parent page the databases were created under.
-3. Seed the four internal engagement buckets in Engagements and write their page IDs into `notion.internal_engagements`.
-4. Run the verification pass:
-   - each of the seven data-source IDs resolves and returns its expected properties;
-   - all four `notion.internal_engagements` IDs resolve, titles match, and each has Status, Rate, Billing model, and Start date empty with `Weekly report` unchecked;
-   - all three queries in `references/engagement-routing.md` return zero rows — open Tasks with a null Engagement, Meeting pages with a null Engagement, and duplicate meeting pages grouped by `Granola link`. Any one of them passes while the other two fail;
-   - a daily check-in runs end to end against the empty workspace.
+1. Write each data-source ID into `solo-os-config.json` under its config key from
+   the build-order table.
+2. Set `notion.home_page` to the parent page everything was created under, and
+   `notion.week_plans_page` to the Weekly Plans and wraps page.
+3. Seed the four internal engagement buckets and write their page IDs into
+   `notion.internal_engagements`.
+4. On the notion backend, create the Theme Map page and write its ID into
+   `content.notion.theme_map_page`.
+5. Run the verification pass in `SKILL.md` Step 5. In short: every ID resolves
+   with the expected title and properties; every relation resolved with the right
+   mirror name; the four buckets resolve with Status, Rate, Billing model, and
+   Start date empty and `Weekly report` unchecked; all three queries in
+   `references/engagement-routing.md` return zero rows; a daily check-in runs end
+   to end.
 
-## Instance-specific values to genericize in the shipped template
+## Nothing instance-specific ships here
 
-These came from the reference workspace and should not ship as-is:
+Every option value in this file is either functional or a neutral default. Two
+that have to stay that way:
 
-- Tasks → Source → "Brian" option (use the user's name or "Owner").
-- Content Calendar → Series → "Outgrown" option (a personal content series).
-- Engagements → "Weekly report" checkbox is generic and stays, but its consuming agent (Wednesday weekly report) is a Brian-only engagement skill for now.
+- **Tasks → Source** ships `Owner`, not anyone's first name.
+- **Content Calendar → Series** ships `Standalone` alone. Series names are user
+  content and belong in `content.series`, never in a shipped option list or in a
+  skill body.
+
+`Weekly report` on Engagements is generic and stays. Its consuming
+weekly-report agent is an engagement-specific skill that does not ship in this
+plugin.
